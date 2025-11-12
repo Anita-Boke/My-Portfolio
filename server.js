@@ -29,19 +29,21 @@ let db;
 
 async function initializeDatabase() {
   try {
-    // Create connection without database first
-    const connection = await mysql.createConnection({
-      host: dbConfig.host,
-      user: dbConfig.user,
-      password: dbConfig.password
-    });
+    // Only try to connect if not localhost (for production)
+    if (dbConfig.host !== 'localhost') {
+      // Create connection without database first
+      const connection = await mysql.createConnection({
+        host: dbConfig.host,
+        user: dbConfig.user,
+        password: dbConfig.password
+      });
 
-    // Create database if it doesn't exist
-    await connection.execute(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`);
-    await connection.end();
+      // Create database if it doesn't exist
+      await connection.execute(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`);
+      await connection.end();
 
-    // Now connect to the database
-    db = await mysql.createConnection(dbConfig);
+      // Now connect to the database
+      db = await mysql.createConnection(dbConfig);
     
     // Create tables
     await db.execute(`
@@ -77,9 +79,15 @@ async function initializeDatabase() {
       )
     `);
 
-    console.log('✅ Database connected successfully');
+      console.log('✅ Database connected successfully');
+    } else {
+      console.log('⚠️ Using localhost - Database disabled for production deployment');
+      console.log('📄 Using JSON files as data source');
+    }
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
+    console.log('📄 Falling back to JSON files as data source');
+    db = null;
   }
 }
 
@@ -129,11 +137,30 @@ app.get('/', (req, res) => {
 // API Routes
 app.get('/api/projects', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM projects ORDER BY created_at DESC');
-    res.json(rows);
+    if (db) {
+      const [rows] = await db.execute('SELECT * FROM projects ORDER BY created_at DESC');
+      res.json(rows);
+    } else {
+      // Fallback to JSON file when database is not available
+      try {
+        const projectsData = await fs.readFile(path.join(__dirname, 'public', 'projects.json'), 'utf8');
+        const projects = JSON.parse(projectsData);
+        res.json(projects);
+      } catch (fileError) {
+        console.error('Error reading projects.json:', fileError);
+        res.json([]); // Return empty array if no projects
+      }
+    }
   } catch (error) {
     console.error('Error fetching projects:', error);
-    res.status(500).json({ error: 'Failed to fetch projects' });
+    // Fallback to JSON file
+    try {
+      const projectsData = await fs.readFile(path.join(__dirname, 'public', 'projects.json'), 'utf8');
+      const projects = JSON.parse(projectsData);
+      res.json(projects);
+    } catch (fileError) {
+      res.status(500).json({ error: 'Failed to fetch projects' });
+    }
   }
 });
 

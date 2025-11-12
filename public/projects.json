@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "title": "E-Commerce Platform",
+    "description": "A full-stack e-commerce solution built with Node.js, Express, and MySQL. Features include user authentication, product management, shopping cart, and payment integration.",
+    "technologies": "Node.js, Express, MySQL, HTML, CSS, JavaScript",
+    "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    "github": "https://github.com/Anita-Boke",
+    "demo": "https://demo-ecommerce.vercel.app"
+  },
+  {
+    "id": 2,
+    "title": "Task Management System",
+    "description": "A responsive task management application with real-time updates, drag-and-drop functionality, and team collaboration features.",
+    "technologies": "React, Node.js, Socket.io, MongoDB",
+    "image": "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    "github": "https://github.com/Anita-Boke",
+    "demo": "https://taskmanager-demo.vercel.app"
+  },
+  {
+    "id": 3,
+    "title": "Portfolio Website",
+    "description": "A modern, responsive portfolio website showcasing my development skills. Built with clean code architecture and modern design principles.",
+    "technologies": "HTML5, CSS3, JavaScript, Node.js, MySQL",
+    "image": "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    "github": "https://github.com/Anita-Boke/My-Portfolio",
+    "demo": "https://anita-boke-portfolio-5ns2iyadc-anita-bokes-projects.vercel.app"
+  }
+]
