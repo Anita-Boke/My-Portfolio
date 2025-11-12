@@ -176,6 +176,7 @@ async function handleContactSubmit(e) {
     const data = {
         name: formData.get('name'),
         email: formData.get('email'),
+        subject: formData.get('subject'),
         message: formData.get('message')
     };
 
@@ -258,20 +259,21 @@ async function loadCurrentResumeInfo() {
     if (!resumeInfo) return;
 
     try {
-        const response = await fetch('/api/resume/current');
+        const response = await fetch('/api/resume');
         
         if (response.status === 404) {
             resumeInfo.innerHTML = '<p style="color: var(--muted); font-size: 0.9rem; margin-top: 10px;">No resume uploaded yet</p>';
             return;
         }
 
-        const resume = await response.json();
+        const data = await response.json();
         
-        if (resume.error) {
+        if (!data.success || !data.resume) {
             resumeInfo.innerHTML = '<p style="color: var(--muted); font-size: 0.9rem; margin-top: 10px;">No resume uploaded yet</p>';
             return;
         }
 
+        const resume = data.resume;
         const uploadDate = new Date(resume.uploaded_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
