@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "Example: Task Manager",
+    "description": "A full-stack task management app with real-time updates, user auth and a responsive UI.",
+    "link": "https://github.com/",
+    "tags": [
+      "React",
+      "Node",
+      "Postgres"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Example: Static Site Generator",
+    "description": "A fast static site generator with plugin support and markdown-first workflow.",
+    "link": "https://github.com/",
+    "tags": [
+      "TypeScript",
+      "Vite"
+    ]
+  }
+]

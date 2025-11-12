@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anita - Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+    <meta name="description" content="Anita's professional portfolio showcasing software development projects and skills">
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand animate-slide-in">
+                <span class="brand-icon">👩‍💻</span>
+                <span class="brand-text">My-Portfolio</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item animate-fade-in">
+                    <a href="#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item animate-fade-in">
+                    <a href="#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item animate-fade-in">
+                    <a href="#projects" class="nav-link">Projects</a>
+                </li>
+                <li class="nav-item animate-fade-in">
+                    <a href="#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <div class="hamburger animate-fade-in">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content animate-slide-in">
+                <!-- Welcome Badge -->
+                <div class="welcome-badge animate-fade-in">
+                    <span class="badge-sparkle">✨</span>
+                    <span class="badge-welcome">Welcome to my digital space</span>
+                </div>
+                
+                <h1 class="hero-title">
+                    <span class="greeting animate-typewriter">Hi there! I'm</span>
+                    <span class="name gradient-name">Anita Boke</span>
+                    <span class="title-wrapper">
+                        <span class="title dynamic-title" data-titles='["Full-Stack Developer", "Problem Solver", "Code Enthusiast", "Tech Innovator"]'>Full-Stack Developer</span>
+                        <span class="title-cursor">|</span>
+                    </span>
+                </h1>
+                
+                <div class="hero-description animate-fade-in">
+                    <p class="main-tagline">
+                        🚀 Transforming ideas into <span class="highlight-text">digital reality</span> through elegant code and innovative solutions
+                    </p>
+                    <div class="quick-facts">
+                        <div class="fact-item">
+                            <span class="fact-icon">🎓</span>
+                            <span class="fact-text">IT Student at Mount Kenya University</span>
+                        </div>
+                        <div class="fact-item">
+                            <span class="fact-icon">💡</span>
+                            <span class="fact-text">Specializing in React & Node.js Ecosystems</span>
+                        </div>
+                        <div class="fact-item">
+                            <span class="fact-icon">🌍</span>
+                            <span class="fact-text">Building solutions that make a difference</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-actions animate-slide-in">
+                    <a href="#projects" class="btn btn-primary btn-glow">
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">Explore My Work</span>
+                        <span class="btn-arrow">→</span>
+                    </a>
+                    <a href="#about" class="btn btn-outline btn-hover">
+                        <span class="btn-icon">👋</span>
+                        <span class="btn-text">Get to Know Me</span>
+                    </a>
+                </div>
+                
+                <div class="hero-stats animate-fade-in">
+                    <div class="stat-item">
+                        <span class="stat-number">20+</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">15+</span>
+                        <span class="stat-label">Technologies</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">4+</span>
+                        <span class="stat-label">Years Learning</span>
+                    </div>
+                </div>
+                
+                <div class="hero-social animate-fade-in">
+                    <div class="social-label">Connect with me</div>
+                    <div class="social-links">
+                        <a href="https://github.com/Anita-Boke" target="_blank" class="social-link github" aria-label="GitHub">
+                            <span class="social-icon">💻</span>
+                            <span class="social-text">GitHub</span>
+                        </a>
+                        <a href="https://www.linkedin.com/in/anita-boke/" target="_blank" class="social-link linkedin" aria-label="LinkedIn">
+                            <span class="social-icon">💼</span>
+                            <span class="social-text">LinkedIn</span>
+                        </a>
+                        <a href="mailto:wintahboke@gmail.com" class="social-link email" aria-label="Email">
+                            <span class="social-icon">📧</span>
+                            <span class="social-text">Email</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual animate-slide-right">
+                <div class="visual-container">
+                    <!-- Interactive Code Editor -->
+                    <div class="code-editor">
+                        <div class="editor-header">
+                            <div class="editor-controls">
+                                <span class="control-dot red"></span>
+                                <span class="control-dot yellow"></span>
+                                <span class="control-dot green"></span>
+                            </div>
+                            <div class="editor-title">portfolio.js</div>
+                        </div>
+                        <div class="editor-content">
+                            <div class="code-line">
+                                <span class="line-number">1</span>
+                                <span class="code-text"><span class="keyword">const</span> <span class="variable">portfolio</span> = {</span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">2</span>
+                                <span class="code-text">&nbsp;&nbsp;<span class="property">name</span>: <span class="string">'Anita Boke'</span>,</span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">3</span>
+                                <span class="code-text">&nbsp;&nbsp;<span class="property">role</span>: <span class="string">'Full-Stack Developer'</span>,</span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">4</span>
+                                <span class="code-text">&nbsp;&nbsp;<span class="property">skills</span>: [<span class="string">'React'</span>, <span class="string">'Node.js'</span>, <span class="string">'MySQL'</span>],</span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">5</span>
+                                <span class="code-text">&nbsp;&nbsp;<span class="property">passion</span>: <span class="boolean">true</span>,</span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">6</span>
+                                <span class="code-text">&nbsp;&nbsp;<span class="property">status</span>: <span class="string">'Available for opportunities'</span></span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">7</span>
+                                <span class="code-text">};</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating Tech Badges -->
+                    <div class="floating-tech-badges">
+                        <div class="tech-badge badge-1">
+                            <span class="tech-icon">⚛️</span>
+                            <span class="tech-name">React</span>
+                        </div>
+                        <div class="tech-badge badge-2">
+                            <span class="tech-icon">📦</span>
+                            <span class="tech-name">Node.js</span>
+                        </div>
+                        <div class="tech-badge badge-3">
+                            <span class="tech-icon">🗄️</span>
+                            <span class="tech-name">MySQL</span>
+                        </div>
+                        <div class="tech-badge badge-4">
+                            <span class="tech-icon">🎨</span>
+                            <span class="tech-name">UI/UX</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Decorative Elements -->
+                    <div class="hero-decorations">
+                        <div class="decoration-orb orb-1"></div>
+                        <div class="decoration-orb orb-2"></div>
+                        <div class="decoration-orb orb-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator animate-bounce">
+            <span class="scroll-text">Scroll to explore</span>
+            <span class="scroll-arrow">↓</span>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header animate-fade-in">
+                <h2 class="section-title">About Me</h2>
+                <p class="section-subtitle">Passionate developer with a love for creating digital experiences</p>
+            </div>
+            
+            <div class="about-container">
+              <!-- Hero Introduction Section -->
+              <div class="about-hero">
+                <div class="hero-content animate-slide-left">
+                  <div class="intro-badge">
+                    <span class="badge-icon">👋</span>
+                    <span class="badge-text">Hello, I'm Anita</span>
+                  </div>
+                  
+                  <h3 class="about-heading">
+                    Passionate <span class="gradient-text">Software Developer</span> 
+                    <br>& Tech Enthusiast
+                  </h3>
+                  
+                  <p class="about-description">
+                    I'm a dedicated software developer currently pursuing my Bachelor's in Information Technology at Mount Kenya University. 
+                    With a passion for creating efficient, scalable solutions, I enjoy working on both frontend and backend technologies.
+                  </p>
+                  
+                  <div class="about-highlights">
+                    <div class="highlight-item">
+                      <span class="highlight-icon">🎯</span>
+                      <div class="highlight-content">
+                        <strong>Current Focus</strong>
+                        <p>Full-stack development with React, Node.js, and modern frameworks</p>
+                      </div>
+                    </div>
+                    
+                    <div class="highlight-item">
+                      <span class="highlight-icon">🚀</span>
+                      <div class="highlight-content">
+                        <strong>Mission</strong>
+                        <p>Building applications that solve real-world problems and make a difference</p>
+                      </div>
+                    </div>
+                    
+                    <div class="highlight-item">
+                      <span class="highlight-icon">💡</span>
+                      <div class="highlight-content">
+                        <strong>Journey</strong>
+                        <p>From curiosity about how things work to commitment in software engineering</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="about-actions">
+                    <a href="#contact" class="btn btn-primary">
+                      <span class="btn-icon">💬</span>
+                      Let's Connect
+                    </a>
+                  </div>
+                </div>
+                
+                <div class="hero-visual animate-slide-right">
+                  <div class="profile-container">
+                    <div class="profile-image-wrapper">
+                      <div class="profile-decoration">
+                        <div class="decoration-circle circle-1"></div>
+                        <div class="decoration-circle circle-2"></div>
+                        <div class="decoration-circle circle-3"></div>
+                      </div>
+                      <div class="profile-image">
+                        <img src="/uploads/Profile.jpg" alt="Anita - Software Developer" />
+                      </div>
+                      <div class="profile-badge">
+                        <span class="badge-emoji">💻</span>
+                        <span class="badge-title">Developer</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Floating Tech Icons -->
+                    <div class="floating-tech">
+                      <div class="tech-icon tech-icon-1">
+                        <span>⚛️</span>
+                        <span class="tech-label">React</span>
+                      </div>
+                      <div class="tech-icon tech-icon-2">
+                        <span>📱</span>
+                        <span class="tech-label">Node.js</span>
+                      </div>
+                      <div class="tech-icon tech-icon-3">
+                        <span>🗄️</span>
+                        <span class="tech-label">MySQL</span>
+                      </div>
+                      <div class="tech-icon tech-icon-4">
+                        <span>🎨</span>
+                        <span class="tech-label">Design</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Education Background Section -->
+              <div class="education-section">
+                <h3 class="education-title animate-fade-in">
+                  <span class="title-icon">🎓</span>
+                  Education Background
+                </h3>
+                
+                <div class="education-container">
+                  <!-- University Education Card -->
+                  <div class="education-card primary-education animate-slide-up">
+                    <div class="education-header">
+                      <div class="education-icon">
+                        <span class="icon-bg">🎓</span>
+                      </div>
+                      <div class="education-period">
+                        <span class="year-badge current">2021 - 2025</span>
+                        <span class="status-badge">Current</span>
+                      </div>
+                    </div>
+                    
+                    <div class="education-content">
+                      <h4 class="degree-title">Bachelor of Science in Information Technology</h4>
+                      <p class="institution-name">
+                        <span class="institution-icon">🏛️</span>
+                        Mount Kenya University (MKU)
+                      </p>
+                      
+                      <div class="education-details">
+                        <div class="detail-item">
+                          <span class="detail-label">Expected Graduation:</span>
+                          <span class="detail-value">2025</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Specialization:</span>
+                          <span class="detail-value">Software Engineering/Web Development/Cyber security</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Focus Areas:</span>
+                          <span class="detail-value">AI, Cybersecurity, Mobile Development</span>
+                        </div>
+                      </div>
+                      
+                      <div class="course-categories">
+                        <div class="category-group">
+                          <h5 class="category-title">Core Subjects</h5>
+                          <div class="course-tags">
+                            <span class="tag core">Design & Analysis of Algorithms</span>
+                            <span class="tag core">Operating Systems</span>
+                            <span class="tag core">Distributed Systems</span>
+                            <span class="tag core">Computer Networks</span>
+                          </div>
+                        </div>
+                        
+                        <div class="category-group">
+                          <h5 class="category-title">Specialized Skills</h5>
+                          <div class="course-tags">
+                            <span class="tag specialized">Artificial Intelligence</span>
+                            <span class="tag specialized">Mobile Development</span>
+                            <span class="tag specialized">Web Development</span>
+                          </div>
+                        </div>
+                        
+                        <div class="category-group">
+                          <h5 class="category-title">Frameworks & Tools</h5>
+                          <div class="course-tags">
+                            <span class="tag framework">React & Angular</span>
+                            <span class="tag framework">Next.js</span>
+                            <span class="tag framework">Node.js</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Secondary Education Card -->
+                  <div class="education-card secondary-education animate-slide-up">
+                    <div class="education-header">
+                      <div class="education-icon">
+                        <span class="icon-bg secondary">📚</span>
+                      </div>
+                      <div class="education-period">
+                        <span class="year-badge completed">2016 - 2020</span>
+                        <span class="status-badge completed">Completed</span>
+                      </div>
+                    </div>
+                    
+                    <div class="education-content">
+                      <h4 class="degree-title">Kenya Certificate of Secondary Education (KCSE)</h4>
+                      <p class="institution-name">
+                        <span class="institution-icon">🏫</span>
+                        Secondary School Education
+                      </p>
+                      
+                      <div class="education-details">
+                        <div class="detail-item">
+                          <span class="detail-label">Completion Year:</span>
+                          <span class="detail-value">2020</span>
+                        </div>
+                        <div class="detail-item highlight">
+                          <span class="detail-label">Leadership Role:</span>
+                          <span class="detail-value leadership">School Prefect</span>
+                        </div>
+                      </div>
+                      
+                      <div class="course-categories">
+                        <div class="category-group">
+                          <h5 class="category-title">Key Subjects</h5>
+                          <div class="course-tags">
+                            <span class="tag secondary">Computer Studies</span>
+                            <span class="tag secondary">Mathematics</span>
+                            <span class="tag secondary">English</span>
+                            <span class="tag secondary">Sciences</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Education Summary Stats -->
+                <div class="education-stats">
+                  <div class="stat-item">
+                    <span class="stat-number">4+</span>
+                    <span class="stat-label">Years University</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">15+</span>
+                    <span class="stat-label">Core Subjects</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">10+</span>
+                    <span class="stat-label">Technologies</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">2025</span>
+                    <span class="stat-label">Expected Grad</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="about-details">
+                <div class="detail-card animate-slide-right">
+                  <div class="card-icon">💻</div>
+                  <h3>Technical Focus</h3>
+                  <p>Specializing in React ecosystem, TypeScript, Java, and modern development frameworks. Experience with both frontend and backend technologies, database design, and system architecture.</p>
+                </div>
+                
+                <div class="detail-card animate-slide-left">
+                  <div class="card-icon">🚀</div>
+                  <h3>Career Goals</h3>
+                  <p>Aspiring to become a senior full-stack developer, contributing to innovative projects that solve real-world problems and make technology more accessible to everyone.</p>
+                </div>
+              </div>
+
+              <div class="skills-section animate-fade-in">
+                <h3>Technologies & Skills</h3>
+                <div class="skills-grid">
+                  <div class="skill-category">
+                    <h4>Frontend</h4>
+                    <div class="skill-tags">
+                      <span class="skill-tag">React</span>
+                      <span class="skill-tag">JavaScript</span>
+                      <span class="skill-tag">TypeScript</span>
+                      <span class="skill-tag">HTML/CSS</span>
+                      <span class="skill-tag">Angular</span>
+                      <span class="skill-tag">Next.js</span>
+                    </div>
+                  </div>
+                  
+                  <div class="skill-category">
+                    <h4>Backend</h4>
+                    <div class="skill-tags">
+                      <span class="skill-tag">Node.js</span>
+                      <span class="skill-tag">Express</span>
+                      <span class="skill-tag">Java</span>
+                      <span class="skill-tag">Python</span>
+                      <span class="skill-tag">PHP</span>
+                      <span class="skill-tag">REST APIs</span>
+                    </div>
+                  </div>
+                  
+                  <div class="skill-category">
+                    <h4>Database & Tools</h4>
+                    <div class="skill-tags">
+                      <span class="skill-tag">MySQL</span>
+                      <span class="skill-tag">MongoDB</span>
+                      <span class="skill-tag">Git</span>
+                      <span class="skill-tag">Docker</span>
+                      <span class="skill-tag">VS Code</span>
+                      <span class="skill-tag">Postman</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects">
+        <div class="container">
+            <div class="section-header animate-fade-in">
+                <h2 class="section-title">My Projects</h2>
+                <p class="section-subtitle">A showcase of my recent work and experiments</p>
+            </div>
+            
+            <div class="projects-controls animate-slide-in">
+                <button onclick="fetchProjects()" class="btn btn-outline">🔄 Refresh Projects</button>
+                <button onclick="syncGitHubRepos()" class="btn btn-outline">📁 Sync GitHub</button>
+                <button onclick="document.getElementById('addProjectModal').style.display='flex'" class="btn btn-primary">➕ Add Project</button>
+            </div>
+            
+            <div id="projectsGrid" class="projects-grid animate-fade-in">
+                <p class="loading">Loading projects...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header animate-fade-in">
+                <h2 class="section-title">Get In Touch</h2>
+                <p class="section-subtitle">Let's discuss your project or just say hello!</p>
+            </div>
+            
+            <div class="contact-container">
+                <div class="contact-info animate-slide-left">
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div>
+                            <h3>Email</h3>
+                            <p><a href="mailto:wintahboke@gmail.com" style="color: var(--accent); text-decoration: none;">wintahboke@gmail.com</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">💼</div>
+                        <div>
+                            <h3>LinkedIn</h3>
+                            <p><a href="https://www.linkedin.com/in/anita-boke/" target="_blank" style="color: var(--accent); text-decoration: none;">Connect with me professionally</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">💻</div>
+                        <div>
+                            <h3>GitHub</h3>
+                            <p><a href="https://github.com/Anita-Boke" target="_blank" style="color: var(--accent); text-decoration: none;">Check out my repositories</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="resume-section">
+                        <h3>📄 Resume</h3>
+                        <p>Download my latest resume or upload an updated version</p>
+                        <div class="resume-controls">
+                            <button onclick="viewResume()" class="btn btn-primary">
+                                👁️ View Resume
+                            </button>
+                            <button onclick="downloadResume()" class="btn btn-secondary">
+                                📥 Download Resume
+                            </button>
+                            <input type="file" id="resumeInput" accept=".pdf" style="display: none;">
+                            <button onclick="document.getElementById('resumeInput').click()" class="btn btn-outline">
+                                📎 Upload New Resume
+                            </button>
+                        </div>
+                        <div id="resumeInfo" class="resume-info"></div>
+                        <div id="resumeResult" class="upload-result"></div>
+                    </div>
+                </div>
+                
+                <form id="contactForm" class="contact-form animate-slide-right">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="6" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                    <div id="contactResult" class="form-result"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Anita</h3>
+                    <p>Software Developer passionate about creating innovative digital solutions.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <div class="footer-social">
+                        <a href="https://github.com/Anita-Boke" target="_blank">💻 GitHub</a>
+                        <a href="https://www.linkedin.com/in/anita-boke/" target="_blank">💼 LinkedIn</a>
+                        <a href="mailto:wintahboke@gmail.com">📧 Email</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Anita. All rights reserved. Built with ❤️ and modern web technologies.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Add Project Modal -->
+    <div id="addProjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ Add New Project</h2>
+                <span class="close" onclick="closeAddModal()">&times;</span>
+            </div>
+            <form id="addProjectForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="projectTitle">Project Title</label>
+                    <input type="text" id="projectTitle" name="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" name="description" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectImage">Project Image</label>
+                    <input type="file" id="projectImage" name="projectImage" accept="image/*">
+                </div>
+                
+                <div class="form-group">
+                    <label for="githubUrl">GitHub URL</label>
+                    <input type="url" id="githubUrl" name="github_url">
+                </div>
+                
+                <div class="form-group">
+                    <label for="liveUrl">Live Demo URL</label>
+                    <input type="url" id="liveUrl" name="live_url">
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectTags">Tags (comma-separated)</label>
+                    <input type="text" id="projectTags" name="tags" placeholder="React, Node.js, JavaScript">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Add Project</button>
+                <div id="addProjectResult"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Project Modal -->
+    <div id="editProjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Edit Project</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editProjectForm" enctype="multipart/form-data">
+                <input type="hidden" id="editProjectId" name="id">
+                
+                <div class="form-group">
+                    <label for="editProjectTitle">Project Title</label>
+                    <input type="text" id="editProjectTitle" name="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editProjectDescription">Description</label>
+                    <textarea id="editProjectDescription" name="description" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editProjectImage">Project Image</label>
+                    <input type="file" id="editProjectImage" name="projectImage" accept="image/*">
+                    <div id="currentImagePreview"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editGithubUrl">GitHub URL</label>
+                    <input type="url" id="editGithubUrl" name="github_url">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editLiveUrl">Live Demo URL</label>
+                    <input type="url" id="editLiveUrl" name="live_url">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editProjectTags">Tags (comma-separated)</label>
+                    <input type="text" id="editProjectTags" name="tags" placeholder="React, Node.js, JavaScript">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Update Project</button>
+                <div id="editProjectResult"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
