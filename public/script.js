@@ -707,3 +707,168 @@ window.addEventListener('scroll', () => {
         }
     }
 });
+
+// ===== RESUME FUNCTIONALITY =====
+
+// Load current resume info on page load
+async function loadCurrentResume() {
+    try {
+        const response = await fetch(getApiUrl('/resume/current'));
+        const resumeInfo = document.getElementById('resumeInfo');
+        
+        if (response.ok) {
+            const resumeData = await response.json();
+            resumeInfo.innerHTML = `
+                <div class="current-resume">
+                    <h4>Current Resume</h4>
+                    <p><strong>File:</strong> ${resumeData.original_name}</p>
+                    <p><strong>Uploaded:</strong> ${new Date(resumeData.uploaded_at).toLocaleDateString()}</p>
+                    <p><strong>Size:</strong> ${formatFileSize(resumeData.file_size)}</p>
+                </div>
+            `;
+        } else {
+            resumeInfo.innerHTML = `
+                <div class="no-resume">
+                    <p>No resume uploaded yet. Click "Upload New Resume" to add your resume.</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading current resume:', error);
+        document.getElementById('resumeInfo').innerHTML = `
+            <div class="resume-error">
+                <p>Error loading resume information. Please try again later.</p>
+            </div>
+        `;
+    }
+}
+
+// View current resume
+async function viewResume() {
+    try {
+        const response = await fetch(getApiUrl('/resume/current'));
+        
+        if (response.ok) {
+            const resumeData = await response.json();
+            // Open resume in new tab
+            window.open(resumeData.file_url, '_blank');
+        } else {
+            alert('No resume found. Please upload a resume first.');
+        }
+    } catch (error) {
+        console.error('Error viewing resume:', error);
+        alert('Error opening resume. Please try again.');
+    }
+}
+
+// Download current resume
+async function downloadResume() {
+    try {
+        const response = await fetch(getApiUrl('/resume/current'));
+        
+        if (response.ok) {
+            const resumeData = await response.json();
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.href = resumeData.file_url;
+            link.download = resumeData.original_name;
+            link.target = '_blank';
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('Resume download initiated:', resumeData.original_name);
+        } else {
+            alert('No resume found. Please upload a resume first.');
+        }
+    } catch (error) {
+        console.error('Error downloading resume:', error);
+        alert('Error downloading resume. Please try again.');
+    }
+}
+
+// Handle resume upload from laptop
+document.addEventListener('DOMContentLoaded', function() {
+    const resumeInput = document.getElementById('resumeInput');
+    
+    if (resumeInput) {
+        resumeInput.addEventListener('change', handleResumeUpload);
+    }
+    
+    // Load current resume info
+    loadCurrentResume();
+});
+
+async function handleResumeUpload(event) {
+    const file = event.target.files[0];
+    const resultDiv = document.getElementById('resumeResult');
+    
+    if (!file) {
+        return;
+    }
+    
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+        resultDiv.innerHTML = '<p style="color: red;">Please select a PDF file only.</p>';
+        return;
+    }
+    
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+        resultDiv.innerHTML = '<p style="color: red;">File size must be less than 10MB.</p>';
+        return;
+    }
+    
+    // Show upload progress
+    resultDiv.innerHTML = '<p style="color: blue;">Uploading resume... Please wait.</p>';
+    
+    try {
+        const formData = new FormData();
+        formData.append('resume', file);
+        
+        const response = await fetch(getApiUrl('/upload-resume'), {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            resultDiv.innerHTML = `
+                <p style="color: green;">✅ Resume uploaded successfully!</p>
+                <p><strong>File:</strong> ${result.original_name}</p>
+                <p><strong>URL:</strong> <a href="${result.file_url}" target="_blank">View Resume</a></p>
+            `;
+            
+            // Reload current resume info
+            setTimeout(() => {
+                loadCurrentResume();
+                resultDiv.innerHTML = '';
+            }, 3000);
+            
+        } else {
+            throw new Error(result.error || 'Upload failed');
+        }
+        
+    } catch (error) {
+        console.error('Resume upload error:', error);
+        resultDiv.innerHTML = `<p style="color: red;">❌ Upload failed: ${error.message}</p>`;
+    }
+    
+    // Clear file input
+    event.target.value = '';
+}
+
+// Utility function to format file size
+function formatFileSize(bytes) {
+    if (!bytes) return 'Unknown size';
+    
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 Bytes';
+    
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
