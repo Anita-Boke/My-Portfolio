@@ -174,6 +174,94 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Database Setup Endpoint (for remote table creation)
+app.post('/api/setup-database', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+    
+    console.log('🗄️ Creating database tables remotely...');
+    
+    // Create RESUMES table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS resumes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        filename VARCHAR(255) NOT NULL UNIQUE,
+        original_name VARCHAR(255) NOT NULL,
+        file_path VARCHAR(500) NOT NULL,
+        file_url VARCHAR(500) NOT NULL,
+        file_size INT DEFAULT NULL,
+        mime_type VARCHAR(100) DEFAULT 'application/pdf',
+        is_current BOOLEAN DEFAULT FALSE,
+        uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        INDEX idx_is_current (is_current),
+        INDEX idx_uploaded_at (uploaded_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    
+    // Create MESSAGES table  
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        status ENUM('new', 'read', 'replied') DEFAULT 'new',
+        ip_address VARCHAR(45) DEFAULT NULL,
+        user_agent TEXT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        INDEX idx_status (status),
+        INDEX idx_created_at (created_at),
+        INDEX idx_email (email)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    
+    // Update PROJECTS table (add missing columns)
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS projects (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        image VARCHAR(500) DEFAULT NULL,
+        github_url VARCHAR(500) DEFAULT NULL,
+        live_url VARCHAR(500) DEFAULT NULL,
+        tags TEXT DEFAULT NULL,
+        language VARCHAR(100) DEFAULT NULL,
+        stars INT DEFAULT 0,
+        is_featured BOOLEAN DEFAULT FALSE,
+        is_github_sync BOOLEAN DEFAULT TRUE,
+        github_id INT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        INDEX idx_featured (is_featured),
+        INDEX idx_github_sync (is_github_sync),
+        INDEX idx_github_id (github_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    
+    console.log('✅ Database tables created successfully');
+    
+    res.json({ 
+      success: true, 
+      message: 'Database tables created successfully',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Database setup error:', error);
+    res.status(500).json({ 
+      error: 'Failed to setup database', 
+      details: error.message 
+    });
+  }
+});
+
 // API Routes
 app.get('/api/projects', async (req, res) => {
   try {

@@ -713,7 +713,7 @@ window.addEventListener('scroll', () => {
 // Load current resume info on page load
 async function loadCurrentResume() {
     try {
-        const response = await fetch(getApiUrl('/resume/current'));
+        const response = await fetch(getApiUrl('/api/resume/current'));
         const resumeInfo = document.getElementById('resumeInfo');
         
         if (response.ok) {
@@ -746,7 +746,7 @@ async function loadCurrentResume() {
 // View current resume
 async function viewResume() {
     try {
-        const response = await fetch(getApiUrl('/resume/current'));
+        const response = await fetch(getApiUrl('/api/resume/current'));
         
         if (response.ok) {
             const resumeData = await response.json();
@@ -764,7 +764,7 @@ async function viewResume() {
 // Download current resume
 async function downloadResume() {
     try {
-        const response = await fetch(getApiUrl('/resume/current'));
+        const response = await fetch(getApiUrl('/api/resume/current'));
         
         if (response.ok) {
             const resumeData = await response.json();
@@ -829,7 +829,7 @@ async function handleResumeUpload(event) {
         const formData = new FormData();
         formData.append('resume', file);
         
-        const response = await fetch(getApiUrl('/upload-resume'), {
+        const response = await fetch(getApiUrl('/api/upload-resume'), {
             method: 'POST',
             body: formData
         });
