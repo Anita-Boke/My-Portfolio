@@ -1,3 +1,4 @@
+const { getConnection } = require('../lib/database');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -14,14 +15,27 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      // Read projects from JSON file
+      // Try to get projects from PlanetScale database first
+      try {
+        const db = await getConnection();
+        const [rows] = await db.execute('SELECT * FROM projects ORDER BY created_at DESC');
+        
+        if (rows.length > 0) {
+          res.status(200).json(rows);
+          return;
+        }
+      } catch (dbError) {
+        console.log('Database not available, using JSON fallback');
+      }
+
+      // Fallback to JSON file
       const projectsPath = path.join(process.cwd(), 'public', 'projects.json');
       const projectsData = await fs.readFile(projectsPath, 'utf8');
       const projects = JSON.parse(projectsData);
       
       res.status(200).json(projects);
     } catch (error) {
-      console.error('Error reading projects:', error);
+      console.error('Error fetching projects:', error);
       res.status(500).json({ error: 'Failed to fetch projects' });
     }
   } else {

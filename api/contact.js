@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { getConnection } = require('../lib/database');
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -14,6 +15,19 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { name, email, subject, message } = req.body;
+
+      // Save message to database (PlanetScale)
+      try {
+        const db = await getConnection();
+        await db.execute(
+          'INSERT INTO messages (name, email, subject, message) VALUES (?, ?, ?, ?)',
+          [name, email, subject, message]
+        );
+        console.log('✅ Message saved to database');
+      } catch (dbError) {
+        console.error('⚠️ Database save failed:', dbError.message);
+        // Continue with email sending even if database fails
+      }
 
       // Create transporter
       const transporter = nodemailer.createTransporter({
