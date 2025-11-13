@@ -9,6 +9,7 @@
     "build": "echo 'Build completed'",
     "vercel-build": "echo 'Vercel build completed'",
     "setup-db": "node scripts/setup-database.js",
+    "deploy-railway": "node scripts/deploy-railway.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

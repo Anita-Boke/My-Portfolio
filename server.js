@@ -9,21 +9,56 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// CORS Configuration for Vercel frontend + Railway backend
+const cors = require('cors');
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'https://anita-boke-portfolio-*.vercel.app',
+    'https://*.vercel.app',
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+  ].filter(Boolean),
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
 // Middleware
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Database connection
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'portfolio_db',
-  connectionLimit: 10,
-  acquireTimeout: 60000,
-  timeout: 60000
-};
+// Database connection - Railway compatible
+let dbConfig;
+
+if (process.env.DATABASE_URL) {
+  // Railway MySQL connection string
+  const url = new URL(process.env.DATABASE_URL);
+  dbConfig = {
+    host: url.hostname,
+    user: url.username,
+    password: url.password,
+    database: url.pathname.slice(1), // Remove leading slash
+    port: url.port || 3306,
+    connectionLimit: 10,
+    acquireTimeout: 60000,
+    timeout: 60000,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  };
+} else {
+  // Local development
+  dbConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'portfolio_db',
+    connectionLimit: 10,
+    acquireTimeout: 60000,
+    timeout: 60000
+  };
+}
 
 let db;
 
