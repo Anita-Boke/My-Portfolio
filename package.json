@@ -10,10 +10,11 @@
     "build": "echo 'Build completed'",
     "vercel-build": "echo 'Vercel build completed'",
     "setup-db": "node scripts/setup-database.js",
+    "create-tables": "node scripts/create-database-tables.js",
     "deploy-railway": "node scripts/deploy-railway.js",
     "railway-cli": "node scripts/railway-cli-deploy.js",
     "post-deploy": "node scripts/post-deploy.js",
-    "railway-setup": "railway run npm run setup-db",
+    "railway-setup": "node scripts/create-database-tables.js",
     "connect-deployments": "node scripts/connect-vercel-railway.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -287,20 +287,85 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
+// Get all messages (for admin)
+app.get('/api/messages', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+
+    const [rows] = await db.execute(`
+      SELECT 
+        id, name, email, message, status, created_at, updated_at
+      FROM messages 
+      ORDER BY created_at DESC
+    `);
+
+    res.json({
+      success: true,
+      count: rows.length,
+      messages: rows
+    });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: 'Failed to fetch messages', details: error.message });
+  }
+});
+
+// Mark message as read
+app.put('/api/messages/:id/read', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+
+    const messageId = req.params.id;
+    await db.execute(
+      'UPDATE messages SET status = "read", updated_at = NOW() WHERE id = ?',
+      [messageId]
+    );
+
+    res.json({ success: true, message: 'Message marked as read' });
+  } catch (error) {
+    console.error('Error updating message status:', error);
+    res.status(500).json({ error: 'Failed to update message status' });
+  }
+});
+
 app.get('/api/resume/current', async (req, res) => {
   try {
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+
+    // Get the current resume (marked as is_current = TRUE)
     const [rows] = await db.execute(
-      'SELECT * FROM resumes ORDER BY uploaded_at DESC LIMIT 1'
+      'SELECT * FROM resumes WHERE is_current = TRUE ORDER BY uploaded_at DESC LIMIT 1'
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'No resume found' });
+      // Fallback to most recent resume if no current is marked
+      const [fallbackRows] = await db.execute(
+        'SELECT * FROM resumes ORDER BY uploaded_at DESC LIMIT 1'
+      );
+      
+      if (fallbackRows.length === 0) {
+        return res.status(404).json({ error: 'No resume found' });
+      }
+      
+      return res.json({
+        ...fallbackRows[0],
+        message: 'Showing most recent resume (no current resume marked)'
+      });
     }
 
-    res.json(rows[0]);
+    res.json({
+      ...rows[0],
+      message: 'Current resume retrieved successfully'
+    });
   } catch (error) {
     console.error('Error fetching current resume:', error);
-    res.status(500).json({ error: 'Failed to fetch resume' });
+    res.status(500).json({ error: 'Failed to fetch resume', details: error.message });
   }
 });
 
@@ -351,6 +416,57 @@ app.get('/api/resume/view/:filename', async (req, res) => {
   } catch (error) {
     console.error('Error viewing resume:', error);
     res.status(500).json({ error: 'Failed to view resume' });
+  }
+});
+
+// Get all resumes
+app.get('/api/resumes', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+
+    const [rows] = await db.execute(`
+      SELECT 
+        id, filename, original_name, file_url, file_size, 
+        is_current, uploaded_at
+      FROM resumes 
+      ORDER BY uploaded_at DESC
+    `);
+
+    res.json({
+      success: true,
+      count: rows.length,
+      resumes: rows
+    });
+  } catch (error) {
+    console.error('Error fetching resumes:', error);
+    res.status(500).json({ error: 'Failed to fetch resumes', details: error.message });
+  }
+});
+
+// Set resume as current
+app.put('/api/resumes/:id/set-current', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+
+    const resumeId = req.params.id;
+    
+    // First, set all resumes as not current
+    await db.execute('UPDATE resumes SET is_current = FALSE');
+    
+    // Then set the selected resume as current
+    await db.execute(
+      'UPDATE resumes SET is_current = TRUE, updated_at = NOW() WHERE id = ?',
+      [resumeId]
+    );
+
+    res.json({ success: true, message: 'Resume set as current' });
+  } catch (error) {
+    console.error('Error setting resume as current:', error);
+    res.status(500).json({ error: 'Failed to set resume as current' });
   }
 });
 
