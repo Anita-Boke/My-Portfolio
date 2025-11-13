@@ -376,9 +376,27 @@ async function fetchProjects() {
     projectsGrid.innerHTML = '<p class="loading">Loading GitHub repositories...</p>';
 
     try {
-        // Fetch directly from GitHub repositories
-        const response = await fetch(getApiUrl('/github-repos'));
-        const repos = await response.json();
+        let repos;
+        
+        try {
+            // Try Railway backend first
+            const response = await fetch(getApiUrl('/github-repos'));
+            if (response.ok) {
+                repos = await response.json();
+                console.log('Successfully loaded repos from Railway backend');
+            } else {
+                throw new Error('Railway backend not available');
+            }
+        } catch (backendError) {
+            console.log('Railway backend not available, using direct GitHub API');
+            
+            // Fallback to direct GitHub API
+            const githubResponse = await fetch('https://api.github.com/users/Anita-Boke/repos?sort=updated&per_page=10&type=owner');
+            if (!githubResponse.ok) {
+                throw new Error('GitHub API error: ' + githubResponse.statusText);
+            }
+            repos = await githubResponse.json();
+        }
 
         if (repos.message) {
             throw new Error('GitHub API error: ' + repos.message);
@@ -391,16 +409,16 @@ async function fetchProjects() {
 
         // Filter out forked repos and convert GitHub repos to project format
         const projects = repos
-            .filter(repo => !repo.fork) // Exclude forked repositories
+            .filter(repo => !repo.fork && !repo.archived) // Exclude forked and archived repositories
             .slice(0, 6) // Show top 6 repositories
             .map(repo => ({
                 id: repo.id,
                 title: repo.name,
-                description: repo.description || 'No description available',
+                description: repo.description || 'A software project showcasing my development skills',
                 github_url: repo.html_url,
                 live_url: repo.homepage || null,
                 language: repo.language,
-                stars: repo.stargazers_count,
+                stars: repo.stargazers_count || 0,
                 updated_at: repo.updated_at,
                 topics: repo.topics || []
             }));
@@ -417,7 +435,7 @@ async function fetchProjects() {
                     <p class="project-description">${escapeHtml(project.description)}</p>
                     <div class="project-meta">
                         ${project.language ? `<span class="project-language">📝 ${project.language}</span>` : ''}
-                        ${project.stars > 0 ? `<span class="project-stars">⭐ ${project.stars}</span>` : ''}
+                        <span class="project-stars">⭐ ${project.stars}</span>
                     </div>
                     ${project.topics.length > 0 ? `
                         <div class="project-tags">
@@ -425,7 +443,7 @@ async function fetchProjects() {
                         </div>
                     ` : ''}
                     <div class="project-links">
-                        <a href="${project.github_url}" target="_blank" class="project-link">💻 Code</a>
+                        <a href="${project.github_url}" target="_blank" class="project-link">💻 View Code</a>
                         ${project.live_url ? `<a href="${project.live_url}" target="_blank" class="project-link">🚀 Live Demo</a>` : ''}
                         <span class="project-updated">Updated: ${new Date(project.updated_at).toLocaleDateString()}</span>
                     </div>
