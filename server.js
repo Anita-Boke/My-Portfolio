@@ -100,24 +100,64 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create MESSAGES table with full structure
     await db.execute(`
       CREATE TABLE IF NOT EXISTS messages (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
         message TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
+        status ENUM('new', 'read', 'replied') DEFAULT 'new',
+        ip_address VARCHAR(45) DEFAULT NULL,
+        user_agent TEXT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        INDEX idx_status (status),
+        INDEX idx_created_at (created_at),
+        INDEX idx_email (email)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // Create RESUMES table with full structure
     await db.execute(`
       CREATE TABLE IF NOT EXISTS resumes (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        filename VARCHAR(255) NOT NULL,
+        filename VARCHAR(255) NOT NULL UNIQUE,
         original_name VARCHAR(255) NOT NULL,
-        uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
+        file_path VARCHAR(500) NOT NULL,
+        file_url VARCHAR(500) NOT NULL,
+        file_size INT DEFAULT NULL,
+        mime_type VARCHAR(100) DEFAULT 'application/pdf',
+        is_current BOOLEAN DEFAULT FALSE,
+        uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        INDEX idx_is_current (is_current),
+        INDEX idx_uploaded_at (uploaded_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+
+    // Add missing columns to existing tables (for existing databases)
+    try {
+      // Add missing columns to messages table
+      await db.execute(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS status ENUM('new', 'read', 'replied') DEFAULT 'new'`);
+      await db.execute(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45) DEFAULT NULL`);
+      await db.execute(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS user_agent TEXT DEFAULT NULL`);
+      await db.execute(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`);
+      
+      // Add missing columns to resumes table  
+      await db.execute(`ALTER TABLE resumes ADD COLUMN IF NOT EXISTS file_path VARCHAR(500) DEFAULT ''`);
+      await db.execute(`ALTER TABLE resumes ADD COLUMN IF NOT EXISTS file_url VARCHAR(500) DEFAULT ''`);
+      await db.execute(`ALTER TABLE resumes ADD COLUMN IF NOT EXISTS file_size INT DEFAULT NULL`);
+      await db.execute(`ALTER TABLE resumes ADD COLUMN IF NOT EXISTS mime_type VARCHAR(100) DEFAULT 'application/pdf'`);
+      await db.execute(`ALTER TABLE resumes ADD COLUMN IF NOT EXISTS is_current BOOLEAN DEFAULT FALSE`);
+      await db.execute(`ALTER TABLE resumes ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`);
+      
+      console.log('✅ Database tables updated with new columns');
+    } catch (alterError) {
+      console.log('⚠️ Column updates may have failed (this is normal for new databases):', alterError.message);
+    }
 
       console.log('✅ Database connected successfully');
     } else {
