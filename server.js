@@ -378,7 +378,13 @@ app.post('/api/upload-resume', upload.single('resume'), async (req, res) => {
 
 app.get('/api/github-repos', async (req, res) => {
   try {
-    const fetch = (await import('node-fetch')).default;
+    // Use built-in fetch (Node.js 18+) or fallback to node-fetch
+    let fetch;
+    try {
+      fetch = globalThis.fetch;
+    } catch (e) {
+      fetch = (await import('node-fetch')).default;
+    }
     
     // Fetch repositories with additional details
     const headers = {
@@ -391,15 +397,22 @@ app.get('/api/github-repos', async (req, res) => {
       headers.Authorization = `token ${process.env.GITHUB_TOKEN}`;
     }
     
+    console.log('Fetching GitHub repositories for Anita-Boke...');
+    
     const response = await fetch('https://api.github.com/users/Anita-Boke/repos?sort=updated&per_page=10&type=owner', {
       headers: headers
     });
     
+    console.log('GitHub API response status:', response.status);
+    
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('GitHub API error response:', errorText);
       throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
     }
     
     const repos = await response.json();
+    console.log(`Found ${repos.length} repositories`);
     
     // Filter and enhance repository data
     const filteredRepos = repos
@@ -421,10 +434,11 @@ app.get('/api/github-repos', async (req, res) => {
         private: repo.private
       }));
     
+    console.log(`Returning ${filteredRepos.length} filtered repositories`);
     res.json(filteredRepos);
   } catch (error) {
     console.error('Error fetching GitHub repos:', error);
-    res.status(500).json({ error: 'Failed to fetch GitHub repositories' });
+    res.status(500).json({ error: 'Failed to fetch GitHub repositories', details: error.message });
   }
 });
 
