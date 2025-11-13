@@ -422,12 +422,26 @@ app.get('/api/messages', async (req, res) => {
       return res.status(500).json({ error: 'Database not connected' });
     }
 
-    const [rows] = await db.execute(`
-      SELECT 
-        id, name, email, message, status, created_at, updated_at
-      FROM messages 
-      ORDER BY created_at DESC
-    `);
+    let rows;
+    
+    try {
+      // Try new table structure first
+      [rows] = await db.execute(`
+        SELECT 
+          id, name, email, message, status, created_at, updated_at
+        FROM messages 
+        ORDER BY created_at DESC
+      `);
+    } catch (columnError) {
+      // Fallback to old table structure
+      console.log('Using old table structure for messages');
+      [rows] = await db.execute(`
+        SELECT 
+          id, name, email, message, 'new' as status, created_at, created_at as updated_at
+        FROM messages 
+        ORDER BY created_at DESC
+      `);
+    }
 
     res.json({
       success: true,
@@ -466,29 +480,33 @@ app.get('/api/resume/current', async (req, res) => {
       return res.status(500).json({ error: 'Database not connected' });
     }
 
-    // Get the current resume (marked as is_current = TRUE)
-    const [rows] = await db.execute(
-      'SELECT * FROM resumes WHERE is_current = TRUE ORDER BY uploaded_at DESC LIMIT 1'
-    );
+    let rows;
+    
+    try {
+      // Try new table structure first
+      [rows] = await db.execute(
+        'SELECT * FROM resumes WHERE is_current = TRUE ORDER BY uploaded_at DESC LIMIT 1'
+      );
+    } catch (columnError) {
+      // Fallback to old table structure
+      console.log('Using old table structure for resumes');
+      [rows] = await db.execute(
+        'SELECT *, filename as file_url FROM resumes ORDER BY uploaded_at DESC LIMIT 1'
+      );
+    }
 
     if (rows.length === 0) {
-      // Fallback to most recent resume if no current is marked
-      const [fallbackRows] = await db.execute(
-        'SELECT * FROM resumes ORDER BY uploaded_at DESC LIMIT 1'
-      );
-      
-      if (fallbackRows.length === 0) {
-        return res.status(404).json({ error: 'No resume found' });
-      }
-      
-      return res.json({
-        ...fallbackRows[0],
-        message: 'Showing most recent resume (no current resume marked)'
-      });
+      return res.status(404).json({ error: 'No resume found' });
+    }
+
+    // Ensure file_url is set for old records
+    const resume = rows[0];
+    if (!resume.file_url && resume.filename) {
+      resume.file_url = `https://my-portfolio-production-2f89.up.railway.app/uploads/${resume.filename}`;
     }
 
     res.json({
-      ...rows[0],
+      ...resume,
       message: 'Current resume retrieved successfully'
     });
   } catch (error) {
@@ -554,13 +572,31 @@ app.get('/api/resumes', async (req, res) => {
       return res.status(500).json({ error: 'Database not connected' });
     }
 
-    const [rows] = await db.execute(`
-      SELECT 
-        id, filename, original_name, file_url, file_size, 
-        is_current, uploaded_at
-      FROM resumes 
-      ORDER BY uploaded_at DESC
-    `);
+    let rows;
+    
+    try {
+      // Try new table structure first
+      [rows] = await db.execute(`
+        SELECT 
+          id, filename, original_name, file_url, file_size, 
+          is_current, uploaded_at
+        FROM resumes 
+        ORDER BY uploaded_at DESC
+      `);
+    } catch (columnError) {
+      // Fallback to old table structure
+      console.log('Using old table structure for resumes list');
+      [rows] = await db.execute(`
+        SELECT 
+          id, filename, original_name, 
+          CONCAT('https://my-portfolio-production-2f89.up.railway.app/uploads/', filename) as file_url,
+          NULL as file_size,
+          FALSE as is_current, 
+          uploaded_at
+        FROM resumes 
+        ORDER BY uploaded_at DESC
+      `);
+    }
 
     res.json({
       success: true,
