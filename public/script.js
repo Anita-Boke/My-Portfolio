@@ -373,67 +373,95 @@ async function fetchProjects() {
     const projectsGrid = document.getElementById('projectsGrid');
     if (!projectsGrid) return;
 
-    projectsGrid.innerHTML = '<p class="loading">Loading projects...</p>';
+    projectsGrid.innerHTML = '<p class="loading">Loading GitHub repositories...</p>';
 
     try {
-        const response = await fetch(getApiUrl(API_CONFIG.projects));
-        const projects = await response.json();
+        // Fetch directly from GitHub repositories
+        const response = await fetch(getApiUrl('/github-repos'));
+        const repos = await response.json();
 
-        if (!Array.isArray(projects) || projects.length === 0) {
-            projectsGrid.innerHTML = '<p class="loading">No projects found. Add some projects to get started!</p>';
+        if (repos.message) {
+            throw new Error('GitHub API error: ' + repos.message);
+        }
+
+        if (!Array.isArray(repos) || repos.length === 0) {
+            projectsGrid.innerHTML = '<p class="loading">No repositories found on GitHub.</p>';
             return;
         }
+
+        // Filter out forked repos and convert GitHub repos to project format
+        const projects = repos
+            .filter(repo => !repo.fork) // Exclude forked repositories
+            .slice(0, 6) // Show top 6 repositories
+            .map(repo => ({
+                id: repo.id,
+                title: repo.name,
+                description: repo.description || 'No description available',
+                github_url: repo.html_url,
+                live_url: repo.homepage || null,
+                language: repo.language,
+                stars: repo.stargazers_count,
+                updated_at: repo.updated_at,
+                topics: repo.topics || []
+            }));
 
         projectsGrid.innerHTML = projects.map(project => `
             <div class="project-card">
                 <div class="project-image">
-                    ${project.image ? 
-                        `<img src="${project.image}" alt="${project.title}" />` : 
-                        `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 3rem;">📁</div>`
-                    }
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 3rem;">
+                        ${getLanguageEmoji(project.language)}
+                    </div>
                 </div>
                 <div class="project-content">
                     <h3 class="project-title">${escapeHtml(project.title)}</h3>
                     <p class="project-description">${escapeHtml(project.description)}</p>
-                    ${project.tags ? `
+                    <div class="project-meta">
+                        ${project.language ? `<span class="project-language">📝 ${project.language}</span>` : ''}
+                        ${project.stars > 0 ? `<span class="project-stars">⭐ ${project.stars}</span>` : ''}
+                    </div>
+                    ${project.topics.length > 0 ? `
                         <div class="project-tags">
-                            ${project.tags.split(',').map(tag => `<span class="project-tag">${escapeHtml(tag.trim())}</span>`).join('')}
+                            ${project.topics.map(topic => `<span class="project-tag">${escapeHtml(topic)}</span>`).join('')}
                         </div>
                     ` : ''}
                     <div class="project-links">
-                        ${project.github_url ? `<a href="${project.github_url}" target="_blank" class="project-link">💻 Code</a>` : ''}
+                        <a href="${project.github_url}" target="_blank" class="project-link">💻 Code</a>
                         ${project.live_url ? `<a href="${project.live_url}" target="_blank" class="project-link">🚀 Live Demo</a>` : ''}
-                        <button class="project-link project-edit-btn" data-project-id="${project.id}">✏️ Edit</button>
+                        <span class="project-updated">Updated: ${new Date(project.updated_at).toLocaleDateString()}</span>
                     </div>
                 </div>
             </div>
         `).join('');
         
-        // Add event listeners to edit buttons
-        const editButtons = document.querySelectorAll('.project-edit-btn');
-        editButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const projectId = button.getAttribute('data-project-id');
-                const project = projects.find(p => p.id == projectId);
-                if (project) {
-                    openEditModal(
-                        project.id,
-                        project.title,
-                        project.description,
-                        project.image || '',
-                        project.tags || '',
-                        project.github_url || '',
-                        project.live_url || ''
-                    );
-                }
-            });
-        });
-        
     } catch (error) {
-        projectsGrid.innerHTML = '<p class="loading">Failed to load projects. Please try refreshing.</p>';
-        console.error('Fetch projects error:', error);
+        projectsGrid.innerHTML = '<p class="loading">Failed to load GitHub repositories. Please try refreshing.</p>';
+        console.error('Fetch GitHub repos error:', error);
     }
+}
+
+// Helper function to get emoji for programming languages
+function getLanguageEmoji(language) {
+    const languageEmojis = {
+        'JavaScript': '🟨',
+        'TypeScript': '🔷',
+        'Python': '🐍',
+        'Java': '☕',
+        'C++': '⚡',
+        'C#': '🔷',
+        'PHP': '🐘',
+        'Ruby': '💎',
+        'Go': '🐹',
+        'Rust': '🦀',
+        'Swift': '🍎',
+        'Kotlin': '🎯',
+        'HTML': '🌐',
+        'CSS': '🎨',
+        'Shell': '🐚',
+        'Dockerfile': '🐳',
+        'Vue': '💚',
+        'React': '⚛️'
+    };
+    return languageEmojis[language] || '📁';
 }
 
 async function syncGitHubRepos() {

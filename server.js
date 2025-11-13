@@ -379,9 +379,49 @@ app.post('/api/upload-resume', upload.single('resume'), async (req, res) => {
 app.get('/api/github-repos', async (req, res) => {
   try {
     const fetch = (await import('node-fetch')).default;
-    const response = await fetch('https://api.github.com/users/Anita-Boke/repos?sort=updated&per_page=6');
+    
+    // Fetch repositories with additional details
+    const headers = {
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'Anita-Portfolio-App'
+    };
+    
+    // Add GitHub token if available for higher rate limits
+    if (process.env.GITHUB_TOKEN) {
+      headers.Authorization = `token ${process.env.GITHUB_TOKEN}`;
+    }
+    
+    const response = await fetch('https://api.github.com/users/Anita-Boke/repos?sort=updated&per_page=10&type=owner', {
+      headers: headers
+    });
+    
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+    }
+    
     const repos = await response.json();
-    res.json(repos);
+    
+    // Filter and enhance repository data
+    const filteredRepos = repos
+      .filter(repo => !repo.fork && !repo.archived) // Exclude forks and archived repos
+      .map(repo => ({
+        id: repo.id,
+        name: repo.name,
+        description: repo.description,
+        html_url: repo.html_url,
+        homepage: repo.homepage,
+        language: repo.language,
+        stargazers_count: repo.stargazers_count,
+        forks_count: repo.forks_count,
+        updated_at: repo.updated_at,
+        created_at: repo.created_at,
+        topics: repo.topics || [],
+        fork: repo.fork,
+        archived: repo.archived,
+        private: repo.private
+      }));
+    
+    res.json(filteredRepos);
   } catch (error) {
     console.error('Error fetching GitHub repos:', error);
     res.status(500).json({ error: 'Failed to fetch GitHub repositories' });

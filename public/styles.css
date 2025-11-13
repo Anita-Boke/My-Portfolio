@@ -1632,6 +1632,21 @@ section {
   margin: 0 0 20px 0;
 }
 
+.project-meta {
+  display: flex;
+  gap: 15px;
+  margin: 10px 0;
+  font-size: 0.9rem;
+}
+
+.project-language,
+.project-stars {
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .project-tags {
   display: flex;
   flex-wrap: wrap;
@@ -1650,6 +1665,8 @@ section {
 
 .project-links {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 15px;
   margin-top: 20px;
 }
@@ -1659,6 +1676,12 @@ section {
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
+}
+
+.project-updated {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-left: auto;
 }
 
 .project-link:hover {
