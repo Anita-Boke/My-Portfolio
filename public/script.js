@@ -1,29 +1,23 @@
 // Portfolio JavaScript functionality
 
-// API Configuration - automatically detects if deployed
+// API Configuration - detects environment and uses appropriate backend
 const API_CONFIG = {
-    baseURL: window.location.hostname === 'localhost' 
-        ? 'http://localhost:3000' 
-        : (window.RAILWAY_BACKEND_URL || '/api'),
+    getRailwayUrl() {
+        return window.__RAILWAY_BACKEND_URL__ || 'http://localhost:3000';
+    },
     
     // API endpoints
     projects: '/api/projects',
-    contact: '/api/contact',
+    contact: '/api/contact',  
     resume: '/api/resume',
     uploadResume: '/api/upload-resume'
 };
 
 // Helper function to get full API URL
 function getApiUrl(endpoint) {
-    if (window.location.hostname === 'localhost') {
-        return `${API_CONFIG.baseURL}${endpoint}`;
-    }
-    // In production on Vercel, use the configured Railway backend URL
-    const railwayUrl = window.location.hostname.includes('vercel.app') 
-        ? (process?.env?.NEXT_PUBLIC_API_URL || process?.env?.RAILWAY_BACKEND_URL)
-        : API_CONFIG.baseURL;
-    
-    return railwayUrl ? `${railwayUrl}${endpoint}` : endpoint;
+    const baseUrl = API_CONFIG.getRailwayUrl();
+    console.log('API Base URL:', baseUrl, 'Endpoint:', endpoint);
+    return `${baseUrl}${endpoint}`;
 }
 
 // DOM Content Loaded Event
@@ -449,7 +443,7 @@ async function syncGitHubRepos() {
     projectsGrid.innerHTML = '<p class="loading">Syncing GitHub repositories...</p>';
 
     try {
-        const response = await fetch('/api/github-repos');
+        const response = await fetch(getApiUrl('/github-repos'));
         const repos = await response.json();
 
         if (repos.message) {
