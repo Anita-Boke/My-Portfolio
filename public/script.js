@@ -1,5 +1,31 @@
 // Portfolio JavaScript functionality
 
+// API Configuration - automatically detects if deployed
+const API_CONFIG = {
+    baseURL: window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000' 
+        : (window.RAILWAY_BACKEND_URL || '/api'),
+    
+    // API endpoints
+    projects: '/api/projects',
+    contact: '/api/contact',
+    resume: '/api/resume',
+    uploadResume: '/api/upload-resume'
+};
+
+// Helper function to get full API URL
+function getApiUrl(endpoint) {
+    if (window.location.hostname === 'localhost') {
+        return `${API_CONFIG.baseURL}${endpoint}`;
+    }
+    // In production on Vercel, use the configured Railway backend URL
+    const railwayUrl = window.location.hostname.includes('vercel.app') 
+        ? (process?.env?.NEXT_PUBLIC_API_URL || process?.env?.RAILWAY_BACKEND_URL)
+        : API_CONFIG.baseURL;
+    
+    return railwayUrl ? `${railwayUrl}${endpoint}` : endpoint;
+}
+
 // DOM Content Loaded Event
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all functionality
@@ -186,7 +212,7 @@ async function handleContactSubmit(e) {
     resultDiv.textContent = '';
 
     try {
-        const response = await fetch('/api/contact', {
+        const response = await fetch(getApiUrl(API_CONFIG.contact), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -356,7 +382,7 @@ async function fetchProjects() {
     projectsGrid.innerHTML = '<p class="loading">Loading projects...</p>';
 
     try {
-        const response = await fetch('/api/projects');
+        const response = await fetch(getApiUrl(API_CONFIG.projects));
         const projects = await response.json();
 
         if (!Array.isArray(projects) || projects.length === 0) {

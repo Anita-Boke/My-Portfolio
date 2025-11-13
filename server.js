@@ -31,22 +31,27 @@ app.use(express.static('public'));
 // Database connection - Railway compatible
 let dbConfig;
 
-if (process.env.DATABASE_URL) {
+if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('mysql://')) {
   // Railway MySQL connection string
-  const url = new URL(process.env.DATABASE_URL);
-  dbConfig = {
-    host: url.hostname,
-    user: url.username,
-    password: url.password,
-    database: url.pathname.slice(1), // Remove leading slash
-    port: url.port || 3306,
-    connectionLimit: 10,
-    acquireTimeout: 60000,
-    timeout: 60000,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  };
+  try {
+    const url = new URL(process.env.DATABASE_URL);
+    dbConfig = {
+      host: url.hostname,
+      user: url.username,
+      password: url.password,
+      database: url.pathname.slice(1), // Remove leading slash
+      port: url.port || 3306,
+      connectionLimit: 10,
+      acquireTimeout: 60000,
+      timeout: 60000,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    };
+  } catch (error) {
+    console.log('⚠️ Invalid DATABASE_URL, using local configuration');
+    dbConfig = null;
+  }
 } else {
   // Local development
   dbConfig = {
@@ -64,8 +69,8 @@ let db;
 
 async function initializeDatabase() {
   try {
-    // Only try to connect if not localhost (for production)
-    if (dbConfig.host !== 'localhost') {
+    // Only try to connect if we have a valid database configuration
+    if (dbConfig && dbConfig.host !== 'localhost') {
       // Create connection without database first
       const connection = await mysql.createConnection({
         host: dbConfig.host,

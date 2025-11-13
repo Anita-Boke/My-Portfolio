@@ -5,11 +5,25 @@ console.log('🚂 Railway Deployment Guide for Your Portfolio\n');
 console.log('📋 Quick Setup Steps:\n');
 
 console.log('1️⃣ **Deploy Backend to Railway**');
+console.log('   🔧 If repositories not loading, try these options:');
+console.log('   ');
+console.log('   Option A: GitHub Integration Issues');
 console.log('   • Go to https://railway.app');
-console.log('   • Sign up with GitHub');
+console.log('   • Click your profile → Settings → Connections');
+console.log('   • Reconnect GitHub integration');
+console.log('   • Grant access to your repositories');
+console.log('   ');
+console.log('   Option B: Direct Repository Link');
+console.log('   • Go to https://railway.app/new');
+console.log('   • Paste: https://github.com/Anita-Boke/My-Portfolio');
 console.log('   • Click "Deploy from GitHub repo"');
-console.log('   • Select your My-Portfolio repository');
-console.log('   • Add MySQL database service\n');
+console.log('   ');
+console.log('   Option C: Railway CLI');
+console.log('   • npm install -g @railway/cli');
+console.log('   • railway login');
+console.log('   • railway link');
+console.log('   ');
+console.log('   • Add MySQL database service after deployment\n');
 
 console.log('2️⃣ **Environment Variables on Railway**');
 console.log('   Add these in Railway dashboard:');
