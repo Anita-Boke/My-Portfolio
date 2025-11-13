@@ -360,19 +360,52 @@ app.post('/api/upload-resume', upload.single('resume'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    await db.execute(
-      'INSERT INTO resumes (filename, original_name) VALUES (?, ?)',
-      [req.file.filename, req.file.originalname]
+    if (!db) {
+      return res.status(500).json({ error: 'Database not connected' });
+    }
+
+    // Create file URL for Railway deployment
+    const baseUrl = process.env.RAILWAY_URL || `https://my-portfolio-production-2f89.up.railway.app`;
+    const filePath = `uploads/${req.file.filename}`;
+    const fileUrl = `${baseUrl}/${filePath}`;
+
+    // Mark other resumes as not current
+    await db.execute('UPDATE resumes SET is_current = FALSE');
+
+    // Insert new resume record
+    await db.execute(`
+      INSERT INTO resumes (
+        filename, 
+        original_name, 
+        file_path, 
+        file_url, 
+        file_size, 
+        mime_type, 
+        is_current
+      ) VALUES (?, ?, ?, ?, ?, ?, TRUE)`,
+      [
+        req.file.filename,
+        req.file.originalname,
+        filePath,
+        fileUrl,
+        req.file.size,
+        req.file.mimetype
+      ]
     );
+
+    console.log(`✅ Resume uploaded: ${req.file.originalname} -> ${fileUrl}`);
 
     res.json({ 
       success: true, 
       message: 'Resume uploaded successfully!',
-      filename: req.file.filename 
+      filename: req.file.filename,
+      file_url: fileUrl,
+      file_path: filePath,
+      original_name: req.file.originalname
     });
   } catch (error) {
     console.error('Error uploading resume:', error);
-    res.status(500).json({ error: 'Failed to upload resume' });
+    res.status(500).json({ error: 'Failed to upload resume', details: error.message });
   }
 });
 
