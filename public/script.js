@@ -446,9 +446,7 @@ async function fetchProjects() {
         projectsGrid.innerHTML = projects.map(project => `
             <div class="project-card">
                 <div class="project-image">
-                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 3rem;">
-                        ${getLanguageEmoji(project.language)}
-                    </div>
+                    ${getProjectImage(project)}
                 </div>
                 <div class="project-content">
                     <h3 class="project-title">${escapeHtml(project.title)}</h3>
@@ -500,6 +498,154 @@ function getLanguageEmoji(language) {
         'React': '⚛️'
     };
     return languageEmojis[language] || '📁';
+}
+
+// Generate dynamic project images based on language and project type
+function getProjectImage(project) {
+    const language = project.language;
+    const title = project.title.toLowerCase();
+    const description = (project.description || '').toLowerCase();
+    
+    // Generate dynamic gradient based on language
+    const gradients = {
+        'JavaScript': 'linear-gradient(135deg, #f7df1e, #323330)',
+        'TypeScript': 'linear-gradient(135deg, #3178c6, #ffffff)', 
+        'Python': 'linear-gradient(135deg, #3776ab, #ffd343)',
+        'Java': 'linear-gradient(135deg, #ed8b00, #5382a1)',
+        'C++': 'linear-gradient(135deg, #00599c, #004482)',
+        'C#': 'linear-gradient(135deg, #239120, #68217a)',
+        'PHP': 'linear-gradient(135deg, #777bb4, #ffffff)',
+        'Ruby': 'linear-gradient(135deg, #cc342d, #ffffff)',
+        'Go': 'linear-gradient(135deg, #00add8, #ffffff)',
+        'Rust': 'linear-gradient(135deg, #ce422b, #000000)',
+        'Swift': 'linear-gradient(135deg, #fa7343, #ffffff)',
+        'HTML': 'linear-gradient(135deg, #e34f26, #ffffff)',
+        'CSS': 'linear-gradient(135deg, #1572b6, #ffffff)',
+        'Vue': 'linear-gradient(135deg, #4fc08d, #ffffff)',
+        'React': 'linear-gradient(135deg, #61dafb, #20232a)',
+        'default': 'linear-gradient(135deg, var(--accent), var(--accent-2))'
+    };
+    
+    const gradient = gradients[language] || gradients.default;
+    const emoji = getLanguageEmoji(language);
+    
+    // Determine project type for additional styling
+    let projectType = 'general';
+    if (title.includes('portfolio') || title.includes('website')) {
+        projectType = 'web';
+    } else if (title.includes('api') || title.includes('server') || title.includes('backend')) {
+        projectType = 'backend';
+    } else if (title.includes('app') || title.includes('mobile')) {
+        projectType = 'mobile';
+    } else if (title.includes('bot') || title.includes('ai') || title.includes('ml')) {
+        projectType = 'ai';
+    } else if (title.includes('game')) {
+        projectType = 'game';
+    } else if (title.includes('database') || title.includes('db')) {
+        projectType = 'database';
+    } else if (title.includes('management') || title.includes('system') || title.includes('bank')) {
+        projectType = 'business';
+    }
+    
+    const projectIcons = {
+        'web': '🌐',
+        'backend': '⚙️', 
+        'mobile': '📱',
+        'ai': '🤖',
+        'game': '🎮',
+        'database': '🗄️',
+        'business': '💼',
+        'general': emoji
+    };
+    
+    const projectIcon = projectIcons[projectType];
+    
+    // Generate GitHub social preview URL
+    const githubImageUrl = `https://opengraph.githubassets.com/1/${GITHUB_CONFIG.username}/${project.title}`;
+    
+    return `
+        <div style="
+            height: 100%; 
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px 12px 0 0;
+            background: ${gradient};
+        ">
+            <img 
+                src="${githubImageUrl}" 
+                alt="${project.title} preview"
+                style="
+                    width: 100%; 
+                    height: 100%; 
+                    object-fit: cover;
+                    transition: transform 0.3s ease;
+                "
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            />
+            <div style="
+                background: ${gradient};
+                height: 100%; 
+                display: none; 
+                flex-direction: column;
+                align-items: center; 
+                justify-content: center; 
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                overflow: hidden;
+            ">
+                <div style="
+                    position: absolute;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.1);
+                    backdrop-filter: blur(1px);
+                "></div>
+                <div style="
+                    font-size: 3rem; 
+                    margin-bottom: 8px; 
+                    position: relative;
+                    z-index: 2;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+                ">${projectIcon}</div>
+                <div style="
+                    font-size: 0.9rem; 
+                    font-weight: 600; 
+                    color: rgba(255,255,255,0.9);
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+                    position: relative;
+                    z-index: 2;
+                    text-align: center;
+                    padding: 0 10px;
+                ">${language || 'Project'}</div>
+                <div style="
+                    position: absolute;
+                    bottom: 8px;
+                    right: 8px;
+                    background: rgba(255,255,255,0.2);
+                    padding: 4px 8px;
+                    border-radius: 12px;
+                    font-size: 0.7rem;
+                    color: rgba(255,255,255,0.8);
+                    backdrop-filter: blur(10px);
+                ">${projectType.toUpperCase()}</div>
+            </div>
+            <div style="
+                position: absolute;
+                top: 8px;
+                left: 8px;
+                background: rgba(0,0,0,0.7);
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                color: white;
+                backdrop-filter: blur(10px);
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            ">
+                ${emoji} ${language || 'Code'}
+            </div>
+        </div>
+    `;
 }
 
 async function syncGitHubRepos() {
