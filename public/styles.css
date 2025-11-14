@@ -3664,3 +3664,253 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-2);
 }
+
+/* ===== GITHUB AUTO-SYNC STYLES ===== */
+
+/* GitHub Update Notification */
+.github-update-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--glass-shadow);
+  padding: 0;
+  animation: slideInNotification 0.3s ease-out;
+  max-width: 350px;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 12px;
+}
+
+.notification-icon {
+  font-size: 1.2rem;
+  animation: spin 1s linear infinite;
+}
+
+.notification-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.notification-close:hover {
+  color: var(--text);
+}
+
+@keyframes slideInNotification {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Manual Refresh Button */
+.github-refresh-btn {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: var(--text) !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(10px) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+}
+
+.github-refresh-btn:hover {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(124,58,237,0.3) !important;
+}
+
+.github-refresh-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* New Repository Badge */
+.project-new {
+  position: relative;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.project-new-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(124,58,237,0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(124,58,237,0);
+  }
+}
+
+/* GitHub Sync Status Indicator */
+.github-sync-status {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.github-sync-status:hover {
+  transform: scale(1.1);
+  background: var(--accent);
+}
+
+.github-sync-status.syncing {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.github-sync-status .status-icon {
+  font-size: 20px;
+  color: var(--text);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(124,58,237,0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(124,58,237,0);
+  }
+}
+
+/* Enhanced Project Cards for Auto-Sync */
+.project-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(124,58,237,0.1), 
+    transparent
+  );
+  transition: left 0.5s ease;
+  z-index: 1;
+}
+
+.project-card:hover::before {
+  left: 100%;
+}
+
+/* Auto-Sync Loading State */
+.projects-loading {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.sync-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--glass-border);
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.sync-message {
+  color: var(--muted);
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.sync-details {
+  color: var(--muted);
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Mobile Responsiveness for GitHub Features */
+@media (max-width: 768px) {
+  .github-update-notification {
+    right: 10px;
+    top: 10px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .github-refresh-btn {
+    position: relative !important;
+    margin: 20px auto !important;
+    display: block !important;
+  }
+  
+  .github-sync-status {
+    bottom: 10px;
+    right: 10px;
+    width: 45px;
+    height: 45px;
+  }
+  
+  .project-new-badge {
+    top: 8px;
+    right: 8px;
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}

@@ -738,6 +738,46 @@
     </div>
 
     <script src="config.js"></script>
+    <script src="github-webhook.js"></script>
     <script src="script.js"></script>
+    
+    <!-- GitHub Auto-Sync Status Indicator -->
+    <div id="githubSyncStatus" class="github-sync-status" title="GitHub Auto-Sync Status">
+        <span class="status-icon">🔄</span>
+    </div>
+    
+    <script>
+        // Initialize GitHub webhook after DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initializeGitHubWebhook === 'function') {
+                initializeGitHubWebhook();
+            }
+            
+            // Setup sync status indicator
+            const syncStatus = document.getElementById('githubSyncStatus');
+            if (syncStatus) {
+                syncStatus.addEventListener('click', function() {
+                    this.classList.add('syncing');
+                    this.title = 'Syncing with GitHub...';
+                    
+                    if (typeof simulateGitHubWebhook === 'function') {
+                        simulateGitHubWebhook();
+                    }
+                    
+                    setTimeout(() => {
+                        this.classList.remove('syncing');
+                        this.title = 'GitHub Auto-Sync Status - Last sync: ' + new Date().toLocaleTimeString();
+                    }, 2000);
+                });
+                
+                // Update status periodically
+                setInterval(() => {
+                    if (!syncStatus.classList.contains('syncing')) {
+                        syncStatus.title = 'GitHub Auto-Sync Active - Click to refresh now';
+                    }
+                }, 60000); // Update every minute
+            }
+        });
+    </script>
 </body>
 </html>

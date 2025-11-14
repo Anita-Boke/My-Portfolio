@@ -1,5 +1,15 @@
 // Portfolio JavaScript functionality
 
+// Hardcoded GitHub Configuration for Auto-Sync
+const GITHUB_CONFIG = {
+    username: 'Anita-Boke',
+    profileUrl: 'https://github.com/Anita-Boke',
+    apiUrl: 'https://api.github.com/users/Anita-Boke/repos',
+    maxRepos: 20,
+    autoRefresh: true,
+    refreshInterval: 300000 // 5 minutes
+};
+
 // API Configuration - detects environment and uses appropriate backend
 const API_CONFIG = {
     getRailwayUrl() {
@@ -29,6 +39,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeForms();
     fetchProjects();
     setupModalHandlers();
+    
+    // Initialize GitHub auto-sync if available
+    if (typeof initializeGitHubWebhook === 'function') {
+        initializeGitHubWebhook();
+    }
 });
 
 // ===== NAVIGATION =====
@@ -373,30 +388,35 @@ async function fetchProjects() {
     const projectsGrid = document.getElementById('projectsGrid');
     if (!projectsGrid) return;
 
-    projectsGrid.innerHTML = '<p class="loading">Loading GitHub repositories...</p>';
+    projectsGrid.innerHTML = '<p class="loading">🔄 Auto-syncing from GitHub.com/Anita-Boke...</p>';
 
     try {
         let repos;
         
-        try {
-            // Try Railway backend first
-            const response = await fetch(getApiUrl('/github-repos'));
-            if (response.ok) {
-                repos = await response.json();
-                console.log('Successfully loaded repos from Railway backend');
-            } else {
-                throw new Error('Railway backend not available');
-            }
-        } catch (backendError) {
-            console.log('Railway backend not available, using direct GitHub API');
+        // Use enhanced GitHub fetch with caching if available
+        if (typeof fetchGitHubRepositoriesWithCache === 'function') {
+            console.log(`🚀 Auto-syncing repositories from ${GITHUB_CONFIG.profileUrl} (with caching)`);
+            repos = await fetchGitHubRepositoriesWithCache();
+        } else {
+            // Fallback to direct API call
+            console.log(`🚀 Auto-syncing repositories from ${GITHUB_CONFIG.profileUrl}`);
             
-            // Fallback to direct GitHub API
-            const githubResponse = await fetch('https://api.github.com/users/Anita-Boke/repos?sort=updated&per_page=10&type=owner');
+            const githubResponse = await fetch(`${GITHUB_CONFIG.apiUrl}?sort=updated&per_page=${GITHUB_CONFIG.maxRepos}&type=owner`, {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'Anita-Boke-Portfolio',
+                    'Cache-Control': 'no-cache'
+                }
+            });
+            
             if (!githubResponse.ok) {
-                throw new Error('GitHub API error: ' + githubResponse.statusText);
+                throw new Error(`GitHub API error: ${githubResponse.status} - ${githubResponse.statusText}`);
             }
+            
             repos = await githubResponse.json();
         }
+        
+        console.log(`✅ Successfully synced ${repos.length} repositories from GitHub`);
 
         if (repos.message) {
             throw new Error('GitHub API error: ' + repos.message);
