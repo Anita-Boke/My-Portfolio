@@ -516,20 +516,93 @@
     <!-- Projects Section -->
     <section id="projects" class="projects">
         <div class="container">
-            <div class="section-header animate-fade-in">
-                <h2 class="section-title">My Projects</h2>
-                <p class="section-subtitle">A showcase of my recent work and experiments</p>
+          <div class="section-header animate-fade-in">
+            <h2 class="section-title">My Projects</h2>
+            <p class="section-subtitle">A showcase of my recent work and experiments</p>
+          </div>
+          <div class="projects-grid animate-fade-in" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-top: 2rem;">
+            <!-- Bank & Account Management System -->
+            <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80" alt="Bank & Account Management System" class="project-image" style="width:100%;height:180px;object-fit:cover;border-radius:8px;">
+              <div class="project-content">
+                <h3>Bank & Account Management System</h3>
+                <p>CRM-style web system for customers, accounts, and transactions. Implemented RBAC, API integrations, and data validation. React & TypeScript frontend with localStorage fallback.</p>
+                <ul class="project-tags">
+                  <li>React</li><li>TypeScript</li><li>RBAC</li><li>API</li><li>localStorage</li>
+                </ul>
+                <p class="project-benefit">Benefit: Empowers financial inclusion and secure banking for all.</p>
+                        <a href="https://github.com/Anita-Boke?tab=repositories" target="_blank" class="project-link">View on GitHub</a>
+              </div>
             </div>
-            
-            <div class="projects-controls animate-slide-in">
-                <button onclick="fetchProjects()" class="btn btn-outline">🔄 Refresh Projects</button>
-                <button onclick="syncGitHubRepos()" class="btn btn-outline">📁 Sync GitHub</button>
-                <button onclick="document.getElementById('addProjectModal').style.display='flex'" class="btn btn-primary">➕ Add Project</button>
+            <!-- Employee Management System -->
+            <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80" alt="Employee Management System" class="project-image" style="width:100%;height:180px;object-fit:cover;border-radius:8px;">
+              <div class="project-content">
+                <h3>Employee Management System</h3>
+                <p>CRUD system for employee records using React. Focused on performance, UI clarity, and data accuracy.</p>
+                <ul class="project-tags">
+                  <li>React</li><li>CRUD</li><li>UI/UX</li>
+                </ul>
+                <p class="project-benefit">Benefit: Streamlines HR processes, improving workplace efficiency and transparency.</p>
+                        <a href="https://github.com/Anita-Boke?tab=repositories" target="_blank" class="project-link">View on GitHub</a>
+              </div>
             </div>
-            
-            <div id="projectsGrid" class="projects-grid animate-fade-in">
-                <p class="loading">Loading projects...</p>
+            <!-- Tech Events Mobile App -->
+            <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80" alt="Tech Events Mobile App" class="project-image" style="width:100%;height:180px;object-fit:cover;border-radius:8px;">
+              <div class="project-content">
+                <h3>Tech Events Mobile App</h3>
+                <p>Android app (Java & Firebase) for discovering tech events by skill and location.</p>
+                <ul class="project-tags">
+                  <li>Java</li><li>Firebase</li><li>Android</li>
+                </ul>
+                <p class="project-benefit">Benefit: Connects learners and professionals to opportunities for growth and networking.</p>
+                        <a href="https://github.com/Anita-Boke?tab=repositories" target="_blank" class="project-link">View on GitHub</a>
+              </div>
             </div>
+            <!-- Poetry Platform Website -->
+            <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80" alt="Poetry Platform Website" class="project-image" style="width:100%;height:180px;object-fit:cover;border-radius:8px;">
+              <div class="project-content">
+                <h3>Poetry Platform Website</h3>
+                <p>PHP-based platform with user authentication, content submission, and database integration.</p>
+                <ul class="project-tags">
+                  <li>PHP</li><li>MySQL</li><li>Authentication</li>
+                </ul>
+                <p class="project-benefit">Benefit: Fosters creative expression and community through technology.</p>
+                        <a href="https://github.com/Anita-Boke?tab=repositories" target="_blank" class="project-link">View on GitHub</a>
+              </div>
+            </div>
+            <!-- AI-Powered Resume Analyzer -->
+            <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" alt="AI Resume Analyzer" class="project-image" style="width:100%;height:180px;object-fit:cover;border-radius:8px;">
+              <div class="project-content">
+                <h3>AI-Powered Resume Analyzer</h3>
+                <p>Web tool using AI to analyze and score resumes for job fit, skills, and clarity. Built with Python, Flask, and OpenAI API.</p>
+                <ul class="project-tags">
+                  <li>AI</li><li>Python</li><li>Flask</li><li>OpenAI</li>
+                </ul>
+                <p class="project-benefit">Benefit: Helps job seekers improve their resumes and increases fair hiring opportunities.</p>
+                        <a href="https://github.com/Anita-Boke?tab=repositories" target="_blank" class="project-link">View on GitHub</a>
+              </div>
+            </div>
+            <!-- AI Chatbot for Mental Health -->
+            <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=600&q=80" alt="AI Chatbot for Mental Health" class="project-image" style="width:100%;height:180px;object-fit:cover;border-radius:8px;">
+              <div class="project-content">
+                <h3>AI Chatbot for Mental Health</h3>
+                <p>Conversational AI chatbot providing mental health support and resources. Built with Node.js and Dialogflow.</p>
+                <ul class="project-tags">
+                  <li>AI</li><li>Node.js</li><li>Dialogflow</li>
+                </ul>
+                <p class="project-benefit">Benefit: Offers accessible, stigma-free support to those in need, anytime.</p>
+                        <a href="https://github.com/Anita-Boke?tab=repositories" target="_blank" class="project-link">View on GitHub</a>
+              </div>
+            </div>
+          </div>
+          <div class="projects-footer" style="margin-top:2.5rem;text-align:center;">
+            <p>For more projects and source code, visit my <a href="https://github.com/Anita-Boke" target="_blank" style="color:var(--accent);font-weight:600;">GitHub profile</a>.</p>
+          </div>
         </div>
     </section>
 
@@ -538,7 +611,7 @@
       <div class="container">
         <div class="section-header animate-fade-in">
           <h2 class="section-title">Resume</h2>
-          <p class="section-subtitle">Download, view, or upload my latest resume</p>
+          <p class="section-subtitle">Download and view my CV</p>
         </div>
         <div class="resume-content animate-slide-in">
           <div class="written-resume animate-fade-in" style="background:#fff; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.07); padding:2rem; margin-bottom:2rem; color:#000;">
