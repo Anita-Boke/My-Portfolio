@@ -247,46 +247,6 @@ async function handleContactSubmit(e) {
 }
 
 // ===== RESUME UPLOAD =====
-async function handleResumeUpload(e) {
-    const file = e.target.files[0];
-    const resultDiv = document.getElementById('resumeResult');
-    
-    if (!file) return;
-
-    if (file.type !== 'application/pdf') {
-        resultDiv.textContent = 'Please select a PDF file.';
-        resultDiv.className = 'upload-result error';
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('resume', file);
-
-    resultDiv.textContent = 'Uploading...';
-    resultDiv.className = 'upload-result';
-
-    try {
-        const response = await fetch('/api/upload-resume', {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            resultDiv.textContent = 'Resume uploaded successfully!';
-            resultDiv.className = 'upload-result success';
-            // Refresh resume info
-            setTimeout(loadCurrentResumeInfo, 1000);
-        } else {
-            throw new Error(result.error || 'Upload failed');
-        }
-    } catch (error) {
-        resultDiv.textContent = 'Failed to upload resume. Please try again.';
-        resultDiv.className = 'upload-result error';
-        console.error('Resume upload error:', error);
-    }
-}
 
 // ===== RESUME FUNCTIONS =====
 async function loadCurrentResumeInfo() {
@@ -294,32 +254,28 @@ async function loadCurrentResumeInfo() {
     if (!resumeInfo) return;
 
     try {
-        const response = await fetch('/api/resume');
+        const response = await fetch('/api/resume/current');
         
-        if (response.status === 404) {
+        if (!response.ok) {
+            console.log('Resume fetch failed with status:', response.status);
             resumeInfo.innerHTML = '<p style="color: var(--muted); font-size: 0.9rem; margin-top: 10px;">No resume uploaded yet</p>';
             return;
         }
 
         const data = await response.json();
+        console.log('Resume data received:', data);
         
-        if (!data.success || !data.resume) {
-            resumeInfo.innerHTML = '<p style="color: var(--muted); font-size: 0.9rem; margin-top: 10px;">No resume uploaded yet</p>';
+        if (!data || !data.filename) {
+            console.log('No filename in response');
+            resumeInfo.innerHTML = '<p style="color: var(--muted); font-size: 0.9rem; margin-top: 10px;">No resume found</p>';
             return;
         }
-
-        const resume = data.resume;
-        const uploadDate = new Date(resume.uploaded_at).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
 
         resumeInfo.innerHTML = `
             <div style="background: var(--glass-bg); padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid var(--glass-border);">
                 <p style="margin: 0 0 5px 0; color: var(--text); font-weight: 500;">📋 Current Resume</p>
-                <p style="margin: 0 0 5px 0; color: var(--muted); font-size: 0.9rem;">File: ${escapeHtml(resume.original_name)}</p>
-                <p style="margin: 0; color: var(--muted); font-size: 0.9rem;">Uploaded: ${uploadDate}</p>
+                <p style="margin: 0 0 5px 0; color: var(--muted); font-size: 0.9rem;">File: ${escapeHtml(data.original_name || data.filename)}</p>
+                <p style="margin: 0; color: var(--muted); font-size: 0.9rem;">Size: ${formatFileSize(data.file_size)}</p>
             </div>
         `;
     } catch (error) {
@@ -333,19 +289,19 @@ async function viewResume() {
         const response = await fetch('/api/resume/current');
         
         if (response.status === 404) {
-            alert('No resume available to view. Please upload a resume first.');
+            alert('No resume available to view.');
             return;
         }
 
         const resume = await response.json();
         
-        if (resume.error) {
-            alert('No resume available to view. Please upload a resume first.');
+        if (!resume.filename) {
+            alert('No resume available to view.');
             return;
         }
 
-        // Open resume in new tab
-        const viewUrl = `/api/resume/view/${resume.filename}`;
+        // Open resume in new tab with proper URL encoding
+        const viewUrl = `/api/resume/view/${encodeURIComponent(resume.filename)}`;
         window.open(viewUrl, '_blank');
     } catch (error) {
         console.error('Error viewing resume:', error);
@@ -358,22 +314,22 @@ async function downloadResume() {
         const response = await fetch('/api/resume/current');
         
         if (response.status === 404) {
-            alert('No resume available to download. Please upload a resume first.');
+            alert('No resume available to download.');
             return;
         }
 
         const resume = await response.json();
         
-        if (resume.error) {
-            alert('No resume available to download. Please upload a resume first.');
+        if (!resume.filename) {
+            alert('No resume available to download.');
             return;
         }
 
-        // Create download link
-        const downloadUrl = `/api/resume/download/${resume.filename}`;
+        // Download with proper URL encoding
+        const downloadUrl = `/api/resume/download/${encodeURIComponent(resume.filename)}`;
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = resume.original_name;
+        link.download = resume.original_name || resume.filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -398,14 +354,13 @@ async function fetchProjects() {
             console.log(`🚀 Auto-syncing repositories from ${GITHUB_CONFIG.profileUrl} (with caching)`);
             repos = await fetchGitHubRepositoriesWithCache();
         } else {
-            // Fallback to direct API call
-            console.log(`🚀 Auto-syncing repositories from ${GITHUB_CONFIG.profileUrl}`);
+            // Fallback to backend API to avoid CORS issues
+            console.log(`🚀 Auto-syncing repositories from backend API`);
             
-            const githubResponse = await fetch(`${GITHUB_CONFIG.apiUrl}?sort=updated&per_page=${GITHUB_CONFIG.maxRepos}&type=owner`, {
+            const githubResponse = await fetch(getApiUrl('/api/github-repos'), {
                 headers: {
-                    'Accept': 'application/vnd.github.v3+json',
-                    'User-Agent': 'Anita-Boke-Portfolio',
-                    'Cache-Control': 'no-cache'
+                    'Accept': 'application/json',
+                    'User-Agent': 'Anita-Boke-Portfolio'
                 }
             });
             
@@ -854,6 +809,16 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => map[m]);
 }
 
+function formatFileSize(bytes) {
+    if (!bytes) return 'Unknown size';
+    
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 Bytes';
+    
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
 // ===== SMOOTH SCROLL TO TOP =====
 function scrollToTop() {
     window.scrollTo({
@@ -956,77 +921,10 @@ async function downloadResume() {
     }
 }
 
-// Handle resume upload from laptop
+// Load current resume info on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const resumeInput = document.getElementById('resumeInput');
-    
-    if (resumeInput) {
-        resumeInput.addEventListener('change', handleResumeUpload);
-    }
-    
-    // Load current resume info
-    loadCurrentResume();
+    loadCurrentResumeInfo();
 });
-
-async function handleResumeUpload(event) {
-    const file = event.target.files[0];
-    const resultDiv = document.getElementById('resumeResult');
-    
-    if (!file) {
-        return;
-    }
-    
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-        resultDiv.innerHTML = '<p style="color: red;">Please select a PDF file only.</p>';
-        return;
-    }
-    
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
-        resultDiv.innerHTML = '<p style="color: red;">File size must be less than 10MB.</p>';
-        return;
-    }
-    
-    // Show upload progress
-    resultDiv.innerHTML = '<p style="color: blue;">Uploading resume... Please wait.</p>';
-    
-    try {
-        const formData = new FormData();
-        formData.append('resume', file);
-        
-        const response = await fetch(getApiUrl('/api/upload-resume'), {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-            resultDiv.innerHTML = `
-                <p style="color: green;">✅ Resume uploaded successfully!</p>
-                <p><strong>File:</strong> ${result.original_name}</p>
-                <p><strong>URL:</strong> <a href="${result.file_url}" target="_blank">View Resume</a></p>
-            `;
-            
-            // Reload current resume info
-            setTimeout(() => {
-                loadCurrentResume();
-                resultDiv.innerHTML = '';
-            }, 3000);
-            
-        } else {
-            throw new Error(result.error || 'Upload failed');
-        }
-        
-    } catch (error) {
-        console.error('Resume upload error:', error);
-        resultDiv.innerHTML = `<p style="color: red;">❌ Upload failed: ${error.message}</p>`;
-    }
-    
-    // Clear file input
-    event.target.value = '';
-}
 
 // Utility function to format file size
 function formatFileSize(bytes) {

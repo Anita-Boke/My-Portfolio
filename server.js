@@ -398,15 +398,35 @@ app.post('/api/contact', async (req, res) => {
   try {
     const { name, email, message } = req.body;
 
-    // Save to database
-    await db.execute(
-      'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)',
-      [name, email, message]
-    );
+    // Validate input
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
 
-    // Send email notifications
-    await emailService.sendAdminNotification({ name, email, message });
-    await emailService.sendThankYouEmail(email, name);
+    console.log('📧 Contact form submission:', { name, email });
+
+    // Try to save to database if available, otherwise continue
+    if (db) {
+      try {
+        await db.execute(
+          'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)',
+          [name, email, message]
+        );
+        console.log('✅ Message saved to database');
+      } catch (dbError) {
+        console.log('⚠️ Database save failed, but email will still be sent:', dbError.message);
+      }
+    }
+
+    // Send email notifications (primary method)
+    try {
+      await emailService.sendAdminNotification({ name, email, message });
+      await emailService.sendThankYouEmail(email, name);
+      console.log('✅ Emails sent successfully');
+    } catch (emailError) {
+      console.error('⚠️ Email sending failed:', emailError.message);
+      // Continue anyway - form was submitted
+    }
 
     res.json({ success: true, message: 'Message sent successfully!' });
   } catch (error) {
@@ -418,35 +438,48 @@ app.post('/api/contact', async (req, res) => {
 // Get all messages (for admin)
 app.get('/api/messages', async (req, res) => {
   try {
-    if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
+    // If database is connected, get messages from there
+    if (db) {
+      try {
+        let rows;
+        
+        try {
+          // Try new table structure first
+          [rows] = await db.execute(`
+            SELECT 
+              id, name, email, message, status, created_at, updated_at
+            FROM messages 
+            ORDER BY created_at DESC
+          `);
+        } catch (columnError) {
+          // Fallback to old table structure
+          console.log('Using old table structure for messages');
+          [rows] = await db.execute(`
+            SELECT 
+              id, name, email, message, 'new' as status, created_at, created_at as updated_at
+            FROM messages 
+            ORDER BY created_at DESC
+          `);
+        }
+
+        res.json({
+          success: true,
+          count: rows.length,
+          messages: rows
+        });
+        return;
+      } catch (dbError) {
+        console.log('⚠️ Database query failed:', dbError.message);
+        // Fall through to return empty array
+      }
     }
 
-    let rows;
-    
-    try {
-      // Try new table structure first
-      [rows] = await db.execute(`
-        SELECT 
-          id, name, email, message, status, created_at, updated_at
-        FROM messages 
-        ORDER BY created_at DESC
-      `);
-    } catch (columnError) {
-      // Fallback to old table structure
-      console.log('Using old table structure for messages');
-      [rows] = await db.execute(`
-        SELECT 
-          id, name, email, message, 'new' as status, created_at, created_at as updated_at
-        FROM messages 
-        ORDER BY created_at DESC
-      `);
-    }
-
+    // Return empty array if no database
     res.json({
       success: true,
-      count: rows.length,
-      messages: rows
+      count: 0,
+      messages: [],
+      note: 'Database not available. Messages are sent via email only.'
     });
   } catch (error) {
     console.error('Error fetching messages:', error);
@@ -458,7 +491,7 @@ app.get('/api/messages', async (req, res) => {
 app.put('/api/messages/:id/read', async (req, res) => {
   try {
     if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
+      return res.status(200).json({ success: true, message: 'Message status update not available without database' });
     }
 
     const messageId = req.params.id;
@@ -476,49 +509,71 @@ app.put('/api/messages/:id/read', async (req, res) => {
 
 app.get('/api/resume/current', async (req, res) => {
   try {
-    if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
-    }
-
-    let rows;
+    // Serve static resume from public/resume folder
+    const resumeDir = path.join(__dirname, 'public', 'resume');
+    console.log('📄 Looking for resume in:', resumeDir);
+    
+    // Prefer the Full Stack Developer resume
+    const preferredFilename = 'Full stack developer-Anita Boke Ambani.pdf';
+    const preferredPath = path.join(resumeDir, preferredFilename);
     
     try {
-      // Try new table structure first
-      [rows] = await db.execute(
-        'SELECT * FROM resumes WHERE is_current = TRUE ORDER BY uploaded_at DESC LIMIT 1'
-      );
-    } catch (columnError) {
-      // Fallback to old table structure
-      console.log('Using old table structure for resumes');
-      [rows] = await db.execute(
-        'SELECT *, filename as file_url FROM resumes ORDER BY uploaded_at DESC LIMIT 1'
-      );
+      // Check if file exists
+      const stats = await fs.stat(preferredPath);
+      console.log('✅ Found preferred resume:', preferredFilename, `(${stats.size} bytes)`);
+      
+      res.json({
+        success: true,
+        filename: preferredFilename,
+        original_name: preferredFilename,
+        file_url: `/resume/${encodeURIComponent(preferredFilename)}`,
+        file_size: stats.size,
+        mime_type: 'application/pdf'
+      });
+      return;
+    } catch (e) {
+      console.log('⚠️ Preferred resume not found:', e.message);
     }
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'No resume found' });
+    
+    // Fallback: look for any PDF files
+    try {
+      const files = await fs.readdir(resumeDir);
+      console.log('📁 Files in resume directory:', files);
+      const pdfFiles = files.filter(file => file.endsWith('.pdf'));
+      console.log('📄 PDF files found:', pdfFiles);
+      
+      if (pdfFiles.length === 0) {
+        console.log('❌ No PDF files found in resume directory');
+        return res.status(404).json({ error: 'No resume found' });
+      }
+      
+      const filename = pdfFiles[0];
+      const filePath = path.join(resumeDir, filename);
+      const stats = await fs.stat(filePath);
+      console.log('✅ Found fallback resume:', filename, `(${stats.size} bytes)`);
+      
+      res.json({
+        success: true,
+        filename: filename,
+        original_name: filename,
+        file_url: `/resume/${encodeURIComponent(filename)}`,
+        file_size: stats.size,
+        mime_type: 'application/pdf'
+      });
+    } catch (dirError) {
+      console.error('❌ Error reading resume directory:', dirError);
+      res.status(500).json({ error: 'Failed to read resume directory' });
     }
-
-    // Ensure file_url is set for old records
-    const resume = rows[0];
-    if (!resume.file_url && resume.filename) {
-      resume.file_url = `https://my-portfolio-production-2f89.up.railway.app/uploads/${resume.filename}`;
-    }
-
-    res.json({
-      ...resume,
-      message: 'Current resume retrieved successfully'
-    });
   } catch (error) {
-    console.error('Error fetching current resume:', error);
+    console.error('❌ Error fetching current resume:', error);
     res.status(500).json({ error: 'Failed to fetch resume', details: error.message });
   }
 });
 
 app.get('/api/resume/download/:filename', async (req, res) => {
   try {
-    const filename = req.params.filename;
-    const filePath = path.join(__dirname, 'uploads', filename);
+    const filename = decodeURIComponent(req.params.filename);
+    const filePath = path.join(__dirname, 'public', 'resume', filename);
     
     // Check if file exists
     try {
@@ -527,15 +582,7 @@ app.get('/api/resume/download/:filename', async (req, res) => {
       return res.status(404).json({ error: 'Resume file not found' });
     }
 
-    // Get original filename from database
-    const [rows] = await db.execute(
-      'SELECT original_name FROM resumes WHERE filename = ?',
-      [filename]
-    );
-
-    const originalName = rows.length > 0 ? rows[0].original_name : filename;
-
-    res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Type', 'application/pdf');
     res.sendFile(filePath);
   } catch (error) {
@@ -546,8 +593,8 @@ app.get('/api/resume/download/:filename', async (req, res) => {
 
 app.get('/api/resume/view/:filename', async (req, res) => {
   try {
-    const filename = req.params.filename;
-    const filePath = path.join(__dirname, 'uploads', filename);
+    const filename = decodeURIComponent(req.params.filename);
+    const filePath = path.join(__dirname, 'public', 'resume', filename);
     
     // Check if file exists
     try {
@@ -568,66 +615,47 @@ app.get('/api/resume/view/:filename', async (req, res) => {
 // Get all resumes
 app.get('/api/resumes', async (req, res) => {
   try {
-    if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
-    }
-
-    let rows;
+    // Serve from static folder
+    const resumeDir = path.join(__dirname, 'public', 'resume');
     
     try {
-      // Try new table structure first
-      [rows] = await db.execute(`
-        SELECT 
-          id, filename, original_name, file_url, file_size, 
-          is_current, uploaded_at
-        FROM resumes 
-        ORDER BY uploaded_at DESC
-      `);
-    } catch (columnError) {
-      // Fallback to old table structure
-      console.log('Using old table structure for resumes list');
-      [rows] = await db.execute(`
-        SELECT 
-          id, filename, original_name, 
-          CONCAT('https://my-portfolio-production-2f89.up.railway.app/uploads/', filename) as file_url,
-          NULL as file_size,
-          FALSE as is_current, 
-          uploaded_at
-        FROM resumes 
-        ORDER BY uploaded_at DESC
-      `);
-    }
+      const files = await fs.readdir(resumeDir);
+      const pdfFiles = files.filter(file => file.endsWith('.pdf'));
+      
+      const resumes = pdfFiles.map(filename => ({
+        id: filename,
+        filename: filename,
+        original_name: filename,
+        file_url: `/resume/${encodeURIComponent(filename)}`,
+        is_current: filename === 'Full stack developer-Anita Boke Ambani.pdf'
+      }));
 
-    res.json({
-      success: true,
-      count: rows.length,
-      resumes: rows
-    });
+      res.json({
+        success: true,
+        count: resumes.length,
+        resumes: resumes
+      });
+    } catch (dirError) {
+      console.log('Resume directory not found:', dirError.message);
+      res.json({
+        success: true,
+        count: 0,
+        resumes: []
+      });
+    }
   } catch (error) {
     console.error('Error fetching resumes:', error);
     res.status(500).json({ error: 'Failed to fetch resumes', details: error.message });
   }
 });
 
-// Set resume as current
+// Set resume as current (no-op for static files)
 app.put('/api/resumes/:id/set-current', async (req, res) => {
   try {
-    if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
-    }
-
-    const resumeId = req.params.id;
-    
-    // First, set all resumes as not current
-    await db.execute('UPDATE resumes SET is_current = FALSE');
-    
-    // Then set the selected resume as current
-    await db.execute(
-      'UPDATE resumes SET is_current = TRUE, updated_at = NOW() WHERE id = ?',
-      [resumeId]
-    );
-
-    res.json({ success: true, message: 'Resume set as current' });
+    res.json({ 
+      success: true, 
+      message: 'Resume management is static. Update resume file in public/resume folder.' 
+    });
   } catch (error) {
     console.error('Error setting resume as current:', error);
     res.status(500).json({ error: 'Failed to set resume as current' });
@@ -640,40 +668,47 @@ app.post('/api/upload-resume', upload.single('resume'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    if (!db) {
-      return res.status(500).json({ error: 'Database not connected' });
-    }
-
-    // Create file URL for Railway deployment
-    const baseUrl = process.env.RAILWAY_URL || `https://my-portfolio-production-2f89.up.railway.app`;
+    // Save to uploads folder temporarily
+    const baseUrl = process.env.RAILWAY_URL || process.env.VERCEL_URL || `http://localhost:3000`;
     const filePath = `uploads/${req.file.filename}`;
     const fileUrl = `${baseUrl}/${filePath}`;
 
-    // Mark other resumes as not current
-    await db.execute('UPDATE resumes SET is_current = FALSE');
-
-    // Insert new resume record
-    await db.execute(`
-      INSERT INTO resumes (
-        filename, 
-        original_name, 
-        file_path, 
-        file_url, 
-        file_size, 
-        mime_type, 
-        is_current
-      ) VALUES (?, ?, ?, ?, ?, ?, TRUE)`,
-      [
-        req.file.filename,
-        req.file.originalname,
-        filePath,
-        fileUrl,
-        req.file.size,
-        req.file.mimetype
-      ]
-    );
-
     console.log(`✅ Resume uploaded: ${req.file.originalname} -> ${fileUrl}`);
+    console.log('📌 For Netlify deployment: Move this file to public/resume/ folder');
+
+    // Try to save to database if available, but don't fail if not
+    if (db) {
+      try {
+        // Mark other resumes as not current
+        await db.execute('UPDATE resumes SET is_current = FALSE');
+
+        // Insert new resume record
+        await db.execute(`
+          INSERT INTO resumes (
+            filename, 
+            original_name, 
+            file_path, 
+            file_url, 
+            file_size, 
+            mime_type, 
+            is_current
+          ) VALUES (?, ?, ?, ?, ?, ?, TRUE)`,
+          [
+            req.file.filename,
+            req.file.originalname,
+            filePath,
+            fileUrl,
+            req.file.size,
+            req.file.mimetype
+          ]
+        );
+        console.log('✅ Resume saved to database');
+      } catch (dbError) {
+        console.log('⚠️ Database save failed, but file was uploaded:', dbError.message);
+      }
+    } else {
+      console.log('ℹ️ Database not available, resuming without database storage');
+    }
 
     res.json({ 
       success: true, 
@@ -681,7 +716,8 @@ app.post('/api/upload-resume', upload.single('resume'), async (req, res) => {
       filename: req.file.filename,
       file_url: fileUrl,
       file_path: filePath,
-      original_name: req.file.originalname
+      original_name: req.file.originalname,
+      note: 'For Netlify deployment: Move file to public/resume/ folder'
     });
   } catch (error) {
     console.error('Error uploading resume:', error);

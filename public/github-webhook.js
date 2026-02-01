@@ -27,11 +27,13 @@ async function fetchGitHubRepositoriesWithCache(force = false) {
     }
     
     try {
-        console.log('🔄 Fetching fresh GitHub data...');
+        console.log('🔄 Fetching fresh GitHub data from backend...');
         
-        const response = await fetch(`${GITHUB_CONFIG.apiUrl}?sort=updated&per_page=${GITHUB_CONFIG.maxRepos}&type=owner&timestamp=${Date.now()}`, {
+        // Use backend API to avoid CORS issues
+        const baseUrl = typeof API_CONFIG !== 'undefined' && API_CONFIG.getRailwayUrl ? API_CONFIG.getRailwayUrl() : 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/github-repos`, {
             headers: {
-                'Accept': 'application/vnd.github.v3+json',
+                'Accept': 'application/json',
                 'User-Agent': 'Anita-Boke-Portfolio',
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
