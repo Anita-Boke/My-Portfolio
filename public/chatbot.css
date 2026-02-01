@@ -1,0 +1,11 @@
+/* Chatbot custom styles */
+#chatbot-window, #chatbot-window * {
+  color: #111 !important;
+  font-family: inherit !important;
+}
+#chatbot-window [style*="background:#0073b1"] {
+  color: #fff !important;
+}
+#chatbot-launcher {
+  color: #fff !important;
+}
